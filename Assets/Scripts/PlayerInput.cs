@@ -18,7 +18,7 @@ namespace PlayerCharacter
 
         public void UpdateInput()
         {
-            Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input)
+            Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         }
     }
 
