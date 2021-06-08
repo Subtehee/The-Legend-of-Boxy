@@ -213,7 +213,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 63980878}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1.6, z: 1}
   m_Children:
   - {fileID: 1472577984}
@@ -886,7 +886,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1472577983}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.56, z: 0.39}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.39}
   m_LocalScale: {x: 0.8, y: 0.2, z: 0.5}
   m_Children: []
   m_Father: {fileID: 63980882}
@@ -1107,7 +1107,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2145460782}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 63980882}
@@ -1168,5 +1168,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b06c97a250d6a9642ae906059aecc3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveAxisDeadZone: 0.2
-  dashDelayTime: 1.5
+  m_moveAxisDeadZone: 0.2
+  m_dashDelayTime: 1.5
