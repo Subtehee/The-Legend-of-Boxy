@@ -10,7 +10,7 @@ namespace Characters.Player
 
         public Vector2 MoveInput { get; private set; }
         public Vector2 CameraInput { get; private set; }
-        public Vector2 PreCameraInput { get; private set; }
+        public Vector2 PreCameraInput { get; private set; }     // Compare with CameraInput(current)
         public bool JumpInput { get; private set; }
         public bool DashInput { get; private set; }
         public bool SprintInput { get; private set; }
@@ -20,6 +20,7 @@ namespace Characters.Player
         public bool HasMoveInput { get; private set; }
 
         private bool HasCameraInput = false;
+
 
         public void UpdateInputs()
         {
@@ -34,11 +35,11 @@ namespace Characters.Player
                 cameraInput.x = 0.0f;
             if (Mathf.Abs(CameraInput.y) < moveCameraAxisDeadZone)
                 cameraInput.y = 0.0f;
-
-            if (cameraInput.magnitude > 0.0f)
-                CameraInput = cameraInput;
             
-            if(!HasMoveInput && !HasCameraInput)
+            // If has no cameraInput then PreCameraInput same with current CameraInput
+            PreCameraInput = CameraInput;
+            if (cameraInput.magnitude > 0.0f)
+                CameraInput = cameraInput;       
 
             JumpInput = Input.GetButton("Jump");
 
