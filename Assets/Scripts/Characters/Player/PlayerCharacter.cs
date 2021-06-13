@@ -1,29 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+// ============================
+// 수정 : 2021-06-11
+// 작성 : sujeong
+// ============================
+
 using UnityEngine;
+
 
 namespace Characters.Player
 {
-    public class PlayerCharacter : Character
+    public class PlayerCharacter : MonoBehaviour
     {
-        public PlayerController _playerController = null;
 
-        protected override void Awake()
+        public PlayerController PlayerController = null;
+
+        private Rigidbody rigid = null;
+
+        private void Awake()
         {
-            base.Awake();
+            PlayerController = GetComponent<PlayerController>();
+            rigid = GetComponent<Rigidbody>();
         }
 
-        protected override void Start()
+        private void Update()
         {
-            base.Start();
-
+            PlayerController.UpdateControl();
         }
 
-
-        void Update()
+        private void FixedUpdate()
         {
-
+            PlayerController.FixedUpdateControl();
         }
+
     }
 
 }

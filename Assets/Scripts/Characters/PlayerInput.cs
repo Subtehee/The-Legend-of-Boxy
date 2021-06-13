@@ -1,26 +1,25 @@
+// ============================
+// 수정 : 2021-06-13
+// 작성 : sujeong
+// ============================
+
 using UnityEngine;
 
 namespace Characters.Player
 {
-
     public class PlayerInput : MonoBehaviour
     {
-
         public readonly float moveCameraAxisDeadZone = 0.2f;
 
         public Vector2 MoveInput { get; private set; }
         public Vector2 CameraInput { get; private set; }
-        public Vector2 PreCameraInput { get; private set; }     // Compare with CameraInput(current)
         public bool JumpInput { get; private set; }
         public bool DashInput { get; private set; }
         public bool SprintInput { get; private set; }
         public bool AutoAttack { get; private set; }
         public bool SkillAttack { get; private set; }
-
         public bool HasMoveInput { get; private set; }
-
-        private bool HasCameraInput = false;
-
+        public bool HasCameraInput { get; private set; }
 
         public void UpdateInputs()
         {
@@ -29,17 +28,19 @@ namespace Characters.Player
             Vector2 cameraInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
             HasMoveInput = MoveInput.magnitude > 0.0f;
-            
+
             // Remove camera inputs inside deadzone
-            if (Mathf.Abs(CameraInput.x) < moveCameraAxisDeadZone)
+            if (Mathf.Abs(cameraInput.x) < moveCameraAxisDeadZone)
                 cameraInput.x = 0.0f;
-            if (Mathf.Abs(CameraInput.y) < moveCameraAxisDeadZone)
+            if (Mathf.Abs(cameraInput.y) < moveCameraAxisDeadZone)
                 cameraInput.y = 0.0f;
-            
-            // If has no cameraInput then PreCameraInput same with current CameraInput
-            PreCameraInput = CameraInput;
-            if (cameraInput.magnitude > 0.0f)
-                CameraInput = cameraInput;       
+
+            if (cameraInput.sqrMagnitude > 0.0f)
+            {
+                CameraInput = cameraInput;
+                HasCameraInput = true;
+            }
+            else HasCameraInput = false;
 
             JumpInput = Input.GetButton("Jump");
 
@@ -51,5 +52,6 @@ namespace Characters.Player
 
         }
     }
+
 }
 

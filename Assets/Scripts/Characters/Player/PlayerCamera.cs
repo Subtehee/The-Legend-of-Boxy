@@ -1,124 +1,109 @@
+// ============================
+// 수정 : 2021-06-13
+// 작성 : sujeong
+// ============================
+
 using UnityEngine;
 
 namespace Characters.Player
 {
     public class PlayerCamera : MonoBehaviour
     {
-        public float rotationSpeed = 0.0f;      // current mouse input speed
-        public float smoothDamp = 10.0f;
-        public float collisionRadius = 0.25f;
-        public float targetLength = 3.0f;
+        public Transform Pivot = null;
+        public Transform Socket = null;
 
-        public LayerMask collisionMask = 0;     // collision with static mesh
+        [Header("CameraSetting")]
+        public float MaxLengthFromTarget = 3.0f;
+        public float SmoothDamp = 7.0f;
+        public float CollisionRadius = 0.2f;
+        public float MinPitchAngle = -45.0f;
+        public float MaxPitchAngle = 75.0f;
+        public float TargetOffset = 1.6f;
 
-        public Transform rig = null;
-        public Transform pivot = null;
-        public Transform socket = null;
-        public Camera Camera;
+        public readonly LayerMask staticLayer = 0;
 
-        private Vector3 socketVelocity;     // Use for smoothDamp
-        private Vector3 rigVelocity;
+        private Vector3 rigVelocity = Vector3.zero;
+        private Vector3 socketVelocity = Vector3.zero;
 
-        // Set CameraRig position
-        public void SetTargetPosition(Vector3 targetPosition)
+        public void Awake()
         {
-            rig.position = Vector3.SmoothDamp(rig.position, targetPosition, 
-                ref rigVelocity, smoothDamp * Time.fixedDeltaTime);
+            if (Pivot == null)
+                Pivot = GetComponentInChildren<Transform>();
+            if (Socket == null)
+                Socket = Pivot.GetComponentInChildren<Transform>();
         }
 
-        public void SetCameraRotation(Vector2 cameraRotation)
+        // 캐릭터의 위치 추적
+        public void SetCameraPosition(Vector3 targetPosition)
         {
-            // Y Rotation (Yaw Rotation)
-            Quaternion rigTargetLocalRotation = Quaternion.Euler(0.0f, cameraRotation.y, 0.0f);
+            // Set rig position
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition + (Vector3.up * TargetOffset),
+                ref rigVelocity, SmoothDamp * Time.fixedDeltaTime);
 
-            // X Rotation (Pitch Rotation)
-            Quaternion pivotTargetLocalRotation = Quaternion.Euler(cameraRotation.x, 0.0f, 0.0f);
+            // Set socket position
+            Vector3 socketTargetPos = transform.position + (-Pivot.forward * GetTargetLength());
+            Socket.position = Vector3.SmoothDamp(Socket.position, socketTargetPos,
+                ref socketVelocity, SmoothDamp * Time.fixedDeltaTime);
+        }
 
-            if(rotationSpeed > 0.0f)
+        // 타겟과의 거리 측정
+        private float GetTargetLength()
+        {
+            RaycastHit hit;
+            if (Physics.SphereCast(transform.position, CollisionRadius, -transform.forward, out hit, MaxLengthFromTarget))
             {
-                rig.rotation = Quaternion.Slerp(rig.rotation, rigTargetLocalRotation, rotationSpeed * Time.fixedDeltaTime);
-                pivot.rotation = Quaternion.Slerp(pivot.rotation, pivotTargetLocalRotation, rotationSpeed * Time.fixedDeltaTime);
+                Debug.Log("hitted");
+                return hit.distance;
+            }
+            else return MaxLengthFromTarget;
+        }
+
+        // 카메라 회전
+        public void SetCameraRotation(Vector2 targetRotation)
+        {
+            float yawAngle = (-targetRotation.x + transform.eulerAngles.y) % 360;
+            float pitchAngle = (targetRotation.y + Pivot.localEulerAngles.x) % 360;
+
+            pitchAngle = Mathf.Clamp(pitchAngle, MinPitchAngle, MaxPitchAngle);
+
+            Debug.Log("targetRotationY : " + targetRotation.y + " / Angle : "+Pivot.localEulerAngles+ " / PitchAngle : " + pitchAngle);
+
+            if (targetRotation.sqrMagnitude > 0.0f)
+            {
+                // Set rig rotation
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0.0f, yawAngle, 0.0f),
+                    SmoothDamp * Time.fixedDeltaTime);
+
+                // Set pivot rotation
+                Pivot.localRotation = Quaternion.Slerp(Pivot.localRotation, Quaternion.Euler(pitchAngle, 0.0f, 0.0f),
+                    SmoothDamp * Time.fixedDeltaTime);
             }
             else
             {
-                rig.rotation = rigTargetLocalRotation;
-                pivot.rotation = pivotTargetLocalRotation;
+                transform.rotation = transform.rotation;
+                Pivot.localRotation = Pivot.localRotation;
             }
+
+            Debug.Log("PitchAngle : " + Pivot.localEulerAngles.x);
         }
 
-        public void UpdateSocketPosition()
+        // 현재의 회전값 가져오기
+        public Vector2 GetControlRotation()
         {
-            float targetLength = GetTargetLength();
-
-            Vector3 newPosition = -Vector3.forward * targetLength;
-
-            socket.localPosition = Vector3.SmoothDamp(socket.localPosition, newPosition,
-                ref socketVelocity, smoothDamp * Time.fixedDeltaTime);
+            return new Vector2(transform.eulerAngles.y, Pivot.localEulerAngles.x);
         }
 
-        // Set camera position length from target
-        private float GetTargetLength()
+        // 카메라의 위치 기즈모
+        void OnDrawGizmos()
         {
-            Ray ray = new Ray(transform.position, -transform.forward);
-            RaycastHit hit;
-
-            if (Physics.SphereCast(ray, collisionRadius, out hit, targetLength, collisionMask))
-                return hit.distance;
-
-            return targetLength;
-        }
-
-        // Draw Gizoms
-        private void OnDrawGizmos()
-        {
-            if (socket != null)
+            if (Socket != null)
             {
                 Gizmos.color = Color.green;
-
-                Gizmos.DrawLine(transform.position, socket.position);
-                DrawGizmoSphere(transform.position, collisionRadius);
+                Gizmos.DrawLine(transform.position, Socket.position);
+                Gizmos.DrawWireCube(transform.position, new Vector3(0.2f, 0.2f, 0.2f));
+                Gizmos.DrawWireSphere(Socket.position, CollisionRadius);
             }
-        }
-
-        // Draw gizom sphere
-        private void DrawGizmoSphere(Vector3 pos, float radius)
-        {
-            Quaternion rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f); 
-
-            int alphaSteps = 8;
-            int betaSteps = 16;
-
-            float deltaAlpha = Mathf.PI / alphaSteps;
-            float deltaBeta = 2 * Mathf.PI / betaSteps;
-
-            for(int a = 0; a < alphaSteps; a++)
-            {
-                for(int b = 0; b < betaSteps; b++)
-                {
-                    float alpha = a * deltaAlpha;
-                    float beta = b * deltaBeta;
-
-                    Vector3 p1 = pos + rotation * GetSphericalPoint(alpha, beta, radius);
-                    Vector3 p2 = pos + rotation * GetSphericalPoint(alpha + deltaAlpha, beta, radius);
-                    Vector3 p3 = pos + rotation * GetSphericalPoint(alpha + deltaAlpha, beta + deltaBeta, radius);
-
-                    // draw gizmo lines
-                    Gizmos.DrawLine(p1, p2);
-                    Gizmos.DrawLine(p1, p3);
-                }
-            }
-        }
-
-        // Get vertex for draw gizmo line
-        private Vector3 GetSphericalPoint(float alpha, float beta, float radius)
-        {
-            Vector3 point;
-            point.x = radius * Mathf.Sin(alpha) * Mathf.Cos(beta);
-            point.y = radius * Mathf.Sin(alpha) * Mathf.Sin(beta);
-            point.z = radius * Mathf.Cos(alpha);
-
-            return point;
         }
     }
-
 }
+

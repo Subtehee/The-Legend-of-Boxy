@@ -1,80 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+// ============================
+// 수정 : 2021-06-13
+// 작성 : sujeong
+// ============================
 
+using UnityEngine;
 
 namespace Characters.Player
 {
-    [CreateAssetMenu(fileName ="PlayerController", menuName ="Controller/PlayerController")]
-    public class PlayerController : ScriptableObject
+    public class PlayerController : MonoBehaviour
     {
-        
-        public PlayerInput _playerInput = null;
-        public PlayerCamera _playerCamera = null;
-        public Vector2 m_cameraRotation = Vector2.zero;
+        public Transform player = null;
+        public PlayerInput PlayerInput = null;
+        public PlayerCamera PlayerCamera = null;
 
-        private float m_curSpeed = 0.0f;
+        [Header("UserSetting")]
+        [Range(1, 5)]public float cameraSensitivity = 3.0f;
 
-        public void Init()
+        private void Awake()
         {
-            if (_playerInput == null)
-                _playerInput = FindObjectOfType<PlayerInput>();
-            if (_playerCamera == null)
-                _playerCamera = FindObjectOfType<PlayerCamera>();
-
+            if (player == null)
+                player = transform;
         }
 
-        public void UpdateController()
+        public void UpdateControl()
         {
-            _playerInput.UpdateInputs();
-            UpdateCameraRotation();
+            PlayerInput.UpdateInputs();
         }
 
-        public void FixedUpdateController(Vector3 targetPos)
+        public void FixedUpdateControl()
         {
-            _playerCamera.SetTargetPosition(targetPos);
-            _playerCamera.SetCameraRotation(m_cameraRotation);
-            _playerCamera.UpdateSocketPosition();
-
+            PlayerCamera.SetCameraPosition(player.position);
+            PlayerCamera.SetCameraRotation(GetTargetRotation());
         }
 
-        private void UpdateCameraRotation()
+        // 입력값에 따른 카메라의 이동 거리 설정하기
+        private Vector2 GetTargetRotation()
         {
-            Vector2 currentInput = _playerInput.CameraInput;
-            Vector2 preInput = _playerInput.PreCameraInput;
+            Vector2 rotation = Vector2.zero;
 
-            // Adjust the Camera Rotation
-            Vector2 controlRotation = (currentInput - preInput) * Stat.cameraSensitivity;
+            if (PlayerInput.HasCameraInput)
+            {
+                rotation.x = PlayerInput.CameraInput.x * cameraSensitivity;   // yaw
+                rotation.y = PlayerInput.CameraInput.y * cameraSensitivity;   // pitch
+            }
 
-            m_cameraRotation = SetControlRotation(controlRotation);
-            SetRotationSpeed(_playerInput.CameraInput);
+            return rotation;
         }
 
-        // 
-        private Vector2 SetControlRotation(Vector2 controlRotation)
-        {
-            // Adjust the pitch angle (X Rotation)
-            float pitchAngle = controlRotation.y;
-            pitchAngle %= 360.0f;
-            pitchAngle = Mathf.Clamp(pitchAngle, Stat.minPitchAngle, Stat.maxPitchAngle);
-
-            // Adjust the yaw angle (Y Rotation)
-            float yawAngle = -controlRotation.x;
-            yawAngle %= 360.0f;
-
-            return new Vector2(pitchAngle, yawAngle);
-        }
-
-        // Set camera rotation speed
-        private void SetRotationSpeed(Vector2 cameraInput)
-        {
-            // (Rotation Speed) 600 : 1200 => 0 : 1 
-            float targetSpeed = cameraInput.magnitude * Stat.maxRotationSpeed;
-            m_curSpeed = Mathf.MoveTowards(m_curSpeed, targetSpeed, Time.deltaTime);
-
-            float rotationSpeed = Mathf.Lerp(Stat.maxRotationSpeed, Stat.minRotationSpeed, m_curSpeed / targetSpeed);
-            _playerCamera.rotationSpeed = rotationSpeed;
-        }
+        // 입력값에 따른 속도 설정
     }
 
 }
+
