@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-13
+// 수정 : 2021-06-14
 // 작성 : sujeong
 // ============================
 
@@ -9,21 +9,27 @@ namespace Characters.Player
 {
     public class PlayerCamera : MonoBehaviour
     {
-        public Transform Pivot = null;
-        public Transform Socket = null;
+        public Transform Pivot = null;      
+        public Transform Socket = null;     
 
-        [Header("CameraSetting")]
+        [Header("Camera Setting")]
         public float MaxLengthFromTarget = 3.0f;
-        public float SmoothDamp = 7.0f;
+        public float MixLengthFromTarget = 1.0f;
         public float CollisionRadius = 0.2f;
+        public float TargetOffset = 1.6f;
         public float MinPitchAngle = -45.0f;
         public float MaxPitchAngle = 75.0f;
-        public float TargetOffset = 1.6f;
+        public float PositionDamp = 7.0f;
+        public float RotationDamp = 1.0f;
 
-        public readonly LayerMask staticLayer = 0;
+        [Header("Collision Layer")]
+        public LayerMask staticLayer = 0;
 
+        // SmoothDamp Velocities
         private Vector3 rigVelocity = Vector3.zero;
         private Vector3 socketVelocity = Vector3.zero;
+        private float yVelocity = 0.0f;
+        private float xVelocity = 0.0f;
 
         public void Awake()
         {
@@ -38,19 +44,20 @@ namespace Characters.Player
         {
             // Set rig position
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition + (Vector3.up * TargetOffset),
-                ref rigVelocity, SmoothDamp * Time.fixedDeltaTime);
+                ref rigVelocity, PositionDamp * Time.fixedDeltaTime);
 
             // Set socket position
             Vector3 socketTargetPos = transform.position + (-Pivot.forward * GetTargetLength());
             Socket.position = Vector3.SmoothDamp(Socket.position, socketTargetPos,
-                ref socketVelocity, SmoothDamp * Time.fixedDeltaTime);
+                ref socketVelocity, PositionDamp * Time.fixedDeltaTime);
         }
 
         // 타겟과의 거리 측정
         private float GetTargetLength()
         {
             RaycastHit hit;
-            if (Physics.SphereCast(transform.position, CollisionRadius, -transform.forward, out hit, MaxLengthFromTarget))
+            if (Physics.SphereCast(transform.position, CollisionRadius, -Socket.forward,
+                out hit, MaxLengthFromTarget, staticLayer))
             {
                 Debug.Log("hitted");
                 return hit.distance;
@@ -61,36 +68,21 @@ namespace Characters.Player
         // 카메라 회전
         public void SetCameraRotation(Vector2 targetRotation)
         {
-            float yawAngle = (-targetRotation.x + transform.eulerAngles.y) % 360;
-            float pitchAngle = (targetRotation.y + Pivot.localEulerAngles.x) % 360;
+            // 목표의 오일러각
+            float yawAngle = -targetRotation.x + transform.eulerAngles.y;
+            float pitchAngle = targetRotation.y + Pivot.localEulerAngles.x;
+            
+            //pitchAngle = Mathf.Clamp(pitchAngle, MinPitchAngle, MaxPitchAngle);  
 
-            pitchAngle = Mathf.Clamp(pitchAngle, MinPitchAngle, MaxPitchAngle);
+            yawAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, yawAngle,
+                ref yVelocity, RotationDamp * Time.fixedDeltaTime);
+            pitchAngle = Mathf.SmoothDampAngle(Pivot.localEulerAngles.x, pitchAngle,
+                ref xVelocity, RotationDamp * Time.fixedDeltaTime);
 
-            Debug.Log("targetRotationY : " + targetRotation.y + " / Angle : "+Pivot.localEulerAngles+ " / PitchAngle : " + pitchAngle);
-
-            if (targetRotation.sqrMagnitude > 0.0f)
-            {
-                // Set rig rotation
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0.0f, yawAngle, 0.0f),
-                    SmoothDamp * Time.fixedDeltaTime);
-
-                // Set pivot rotation
-                Pivot.localRotation = Quaternion.Slerp(Pivot.localRotation, Quaternion.Euler(pitchAngle, 0.0f, 0.0f),
-                    SmoothDamp * Time.fixedDeltaTime);
-            }
-            else
-            {
-                transform.rotation = transform.rotation;
-                Pivot.localRotation = Pivot.localRotation;
-            }
-
-            Debug.Log("PitchAngle : " + Pivot.localEulerAngles.x);
-        }
-
-        // 현재의 회전값 가져오기
-        public Vector2 GetControlRotation()
-        {
-            return new Vector2(transform.eulerAngles.y, Pivot.localEulerAngles.x);
+            // Set rig rotation
+            transform.rotation = Quaternion.Euler(0.0f, yawAngle, 0.0f);
+            // Set pivot rotation
+            Pivot.localRotation = Quaternion.Euler(pitchAngle, 0.0f, 0.0f);
         }
 
         // 카메라의 위치 기즈모

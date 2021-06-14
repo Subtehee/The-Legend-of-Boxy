@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -217,7 +217,7 @@ GameObject:
   - component: {fileID: 67492701}
   - component: {fileID: 67492700}
   - component: {fileID: 67492699}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -347,11 +347,15 @@ MonoBehaviour:
   Pivot: {fileID: 686967875}
   Socket: {fileID: 1969545650}
   MaxLengthFromTarget: 3
-  SmoothDamp: 7
+  PositionDamp: 7
+  RotationDamp: 1
   CollisionRadius: 0.2
   MinPitchAngle: -45
   MaxPitchAngle: 75
   TargetOffset: 1.6
+  staticLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &530600227
 GameObject:
   m_ObjectHideFlags: 0
@@ -364,7 +368,7 @@ GameObject:
   - component: {fileID: 530600230}
   - component: {fileID: 530600229}
   - component: {fileID: 530600228}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -666,7 +670,7 @@ GameObject:
   - component: {fileID: 1035325779}
   - component: {fileID: 1035325778}
   - component: {fileID: 1035325777}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -761,7 +765,7 @@ GameObject:
   - component: {fileID: 1243441564}
   - component: {fileID: 1243441563}
   - component: {fileID: 1243441562}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -938,7 +942,7 @@ MonoBehaviour:
   player: {fileID: 1444586479}
   PlayerInput: {fileID: 1539043691}
   PlayerCamera: {fileID: 169540103}
-  cameraSensitivity: 5
+  cameraSensitivity: 7
 --- !u!1 &1472577983
 GameObject:
   m_ObjectHideFlags: 0
@@ -1106,7 +1110,7 @@ GameObject:
   - component: {fileID: 2062057183}
   - component: {fileID: 2062057182}
   - component: {fileID: 2062057181}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
