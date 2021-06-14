@@ -1,2 +1,2 @@
 # The-Legend-of-Boxy
-포폴 게임
+구조 짜는 중...
