@@ -347,12 +347,13 @@ MonoBehaviour:
   Pivot: {fileID: 686967875}
   Socket: {fileID: 1969545650}
   MaxLengthFromTarget: 3
-  PositionDamp: 7
-  RotationDamp: 1
+  MixLengthFromTarget: 1
   CollisionRadius: 0.2
+  TargetOffset: 1.6
   MinPitchAngle: -45
   MaxPitchAngle: 75
-  TargetOffset: 1.6
+  PositionDamp: 7
+  RotationDamp: 1
   staticLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -926,7 +927,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b31a0f9465b8b4fb128f0e3a3d7030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerController: {fileID: 0}
+  Controller: {fileID: 0}
+  CurMoveSpeed: 0
+  RunSpeed: 10
+  SprintSpeed: 20
+  Acceleration: 30
+  TurnSpeed: 3
+  JumpForce: 5
+  GroundedGravity: 5
+  AirborneGravity: 20
+  GlidingGravity: 10
 --- !u!114 &1444586483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -939,10 +949,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de70c9fde78f87f4e841e895fe525b22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1444586479}
+  moveDirection: {x: 0, y: 0, z: 0}
+  staticLayer:
+    serializedVersion: 2
+    m_Bits: 64
   PlayerInput: {fileID: 1539043691}
   PlayerCamera: {fileID: 169540103}
-  cameraSensitivity: 7
+  CameraSensitivity: 7
+  MoveDirection: {x: 0, y: 0, z: 0}
 --- !u!1 &1472577983
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,6 +1067,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b8960f993ac8d247b2ce9a78b1c0716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sprintInputTime: 0.7
 --- !u!4 &1539043692
 Transform:
   m_ObjectHideFlags: 0

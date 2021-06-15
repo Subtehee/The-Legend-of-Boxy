@@ -1,37 +1,29 @@
 // ============================
-// 수정 : 2021-06-14
+// 수정 : 2021-06-15
 // 작성 : sujeong
 // ============================
 
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Characters.Player
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : Controller
     {
-        public Transform _player = null;
         public PlayerInput PlayerInput = null;
         public PlayerCamera PlayerCamera = null;
-
-        public LayerMask staticLayer = 0;
-        public PlayerState State = new PlayerState();   // Player state FSM
 
         [Header("User Setting")]
         [Range(1, 10)]public float CameraSensitivity = 7.0f;
 
         [HideInInspector] public Vector3 MoveDirection = Vector3.zero;      // Player move direction
 
-        public bool IsJumping { get; set; }
-        public bool IsDashing { get; set; }
+        private Transform player = null;
 
-        public bool IsMoving { get; set; }      // has user keyboard input
-        private bool IsGrounded = true;
-
-        private void Awake()
+        protected override void Awake()
         {
-            if (_player == null)
-                _player = transform;
+            base.Awake();
+            player = transform;
         }
 
         private void OnEnable()
@@ -39,21 +31,31 @@ namespace Characters.Player
             IsGrounded = true;
         }
 
-        public void UpdateControl()
+        public override void UpdateControl()
         {
             PlayerInput.UpdateInputs();
 
             SetCharacterState();
         }
 
-        public void FixedUpdateControl()
+        public override void FixedUpdateControl()
         {
-            CheckGrounded();
-
-            PlayerCamera.SetCameraPosition(_player.position);
+            base.FixedUpdateControl();
+            PlayerCamera.SetCameraPosition(player.position);
             PlayerCamera.SetCameraRotation(GetTargetRotation());
         }
 
+        // 입력값에 따른 상태 측정
+        protected override void SetCharacterState()
+        {
+
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, -transform.up);
+        }
 
         private Vector2 GetTargetRotation()
         {
@@ -65,40 +67,6 @@ namespace Characters.Player
                 rotation.y = PlayerInput.CameraInput.y * CameraSensitivity;   // pitch
             }
             return rotation;
-        }
-
-
-        // 입력값에 따른 상태 측정
-        private void SetCharacterState()
-        {
-            if(IsGrounded)
-            {
-
-            }
-            else
-            {
-
-            }
-        }
-
-        private void CheckGrounded()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, -transform.up);
-
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, -transform.up, out hit, 1.0f, staticLayer))
-            {
-                if (hit.distance < float.Epsilon)
-                    IsGrounded = true;
-            }
-            else IsGrounded = false;
-        }
-
-
-        public Vector3 GetMoveDirection()
-        {
-            return PlayerCamera.transform.forward;
         }
     }
 }

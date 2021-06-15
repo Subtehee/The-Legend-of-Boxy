@@ -21,8 +21,6 @@ namespace Characters.Player
         public float MaxPitchAngle = 75.0f;
         public float PositionDamp = 7.0f;
         public float RotationDamp = 1.0f;
-
-        [Header("Collision Layer")]
         public LayerMask staticLayer = 0;
 
         // SmoothDamp Velocities

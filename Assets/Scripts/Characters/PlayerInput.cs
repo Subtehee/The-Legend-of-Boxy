@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-13
+// 수정 : 2021-06-15
 // 작성 : sujeong
 // ============================
 
@@ -10,6 +10,7 @@ namespace Characters.Player
     public class PlayerInput : MonoBehaviour
     {
         public readonly float moveCameraAxisDeadZone = 0.2f;
+        public float sprintInputTime = 0.7f;    // not certain...
 
         public Vector2 MoveInput { get; private set; }
         public Vector2 CameraInput { get; private set; }
@@ -42,7 +43,7 @@ namespace Characters.Player
             }
             else HasCameraInput = false;
 
-            JumpInput = Input.GetButton("Jump");
+            JumpInput = Input.GetButtonUp("Jump");
 
             DashInput = Input.GetMouseButtonUp(1);
 
@@ -52,6 +53,5 @@ namespace Characters.Player
 
         }
     }
-
 }
 

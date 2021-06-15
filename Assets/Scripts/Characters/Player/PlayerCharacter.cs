@@ -9,11 +9,10 @@ using UnityEngine;
 
 namespace Characters.Player
 {
-    //[RequireComponent(typeof(Animator))]
-    //[RequireComponent(typeof(Rigidbody))]
-    public class PlayerCharacter : MonoBehaviour
+    public class PlayerCharacter : Character
     {
-        public PlayerController PlayerController = null;
+
+        // 캐릭터의 상태 FSM
 
         [Header("Movement Setting")]
         public float CurMoveSpeed = 0.0f;       // 현재 속도
@@ -27,32 +26,25 @@ namespace Characters.Player
         public float GroundedGravity = 5.0f;    // 접지 상태
         public float AirborneGravity = 20.0f;   // 공중 낙하
         public float GlidingGravity = 10.0f;    // 글라이딩
-
-        private Rigidbody rigid = null;
-        private Vector3 moveDirection = Vector3.zero;
         
-        private void Awake()
+        protected override void Awake()
         {
-            PlayerController = GetComponent<PlayerController>();
-            rigid = GetComponent<Rigidbody>();
+            base.Awake();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            PlayerController.UpdateControl();
-
+            base.Update();
             // 플레이어 움직이기
+
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
-            PlayerController.FixedUpdateControl();
-            moveDirection = PlayerController.GetMoveDirection(); 
+            base.FixedUpdate();
         }
 
-        // 키다운 확인
-
-
+        // 상태값에 따른 캐릭터 행동
     }
 
 }
