@@ -14,7 +14,7 @@ namespace Characters.Player
         public PlayerCamera PlayerCamera = null;
 
         [Header("User Setting")]
-        [Range(1, 10)]public float CameraSensitivity = 7.0f;
+        [Range(1, 10)]public float CameraSensitivity = 5.0f;
 
         [HideInInspector] public Vector3 MoveDirection = Vector3.zero;      // Player move direction
 
@@ -36,6 +36,9 @@ namespace Characters.Player
             PlayerInput.UpdateInputs();
 
             SetCharacterState();
+
+            // 상태 지속 
+
         }
 
         public override void FixedUpdateControl()
