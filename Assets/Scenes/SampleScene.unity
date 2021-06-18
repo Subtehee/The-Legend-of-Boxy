@@ -929,6 +929,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Controller: {fileID: 0}
+  FSM: {fileID: 0}
+  State: 1
   CurMoveSpeed: 0
   RunSpeed: 10
   SprintSpeed: 20

@@ -3,6 +3,7 @@
 // 작성 : sujeong
 // ============================
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,9 @@ namespace Characters.State
         private IState CurrentState = null;     // current state
         private IState PreviouseState = null;   // previouse state
         private IState GlobalState = null;      // Can transition from any state
+
+        // 상태 전환 조건 목록
+
 
         public void Awake()
         {
