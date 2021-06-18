@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-15
+// 수정 : 2021-06-18
 // 작성 : sujeong
 // ============================
 
@@ -7,14 +7,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Characters
 {
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(Rigidbody))]
     public class Character : MonoBehaviour
     {
-        public Controller Controller = null;
+        [SerializeField] private Controller Controller = null;
 
         protected Rigidbody rigid = null;
         protected Animator anim = null;
@@ -22,8 +21,7 @@ namespace Characters
 
         protected virtual void Awake()
         {
-            if (Controller == null)
-                Controller = GetComponent<Controller>();
+            Controller ??= GetComponent<Controller>();
         }
 
         protected virtual void Update()

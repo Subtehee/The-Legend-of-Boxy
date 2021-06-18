@@ -10,7 +10,7 @@ namespace Characters.State
 {
 
     [CreateAssetMenu(fileName ="FiniteStateMachine", menuName ="FSM/FiniteStateMachine")]
-    public class FiniteStateMachine<T> : ScriptableObject
+    public class FiniteStateMachine<T> : ScriptableObject where T : MonoBehaviour
     {
         private T owner;
         private IState CurrentState = null;     // current state
@@ -24,7 +24,7 @@ namespace Characters.State
             GlobalState = null;     
         }
 
-        public void Update()
+        public void UpdateState()
         {
             if (GlobalState != null) GlobalState.Execute();
             if (CurrentState != null) CurrentState.Execute();

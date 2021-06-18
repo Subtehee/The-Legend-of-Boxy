@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-15
+// 수정 : 2021-06-18
 // 작성 : sujeong
 // ============================
 
@@ -34,11 +34,7 @@ namespace Characters.Player
         public override void UpdateControl()
         {
             PlayerInput.UpdateInputs();
-
-            SetCharacterState();
-
-            // 상태 지속 
-
+            MoveDirection = PlayerInput.CameraInput;    // Player Move Direction
         }
 
         public override void FixedUpdateControl()
@@ -46,12 +42,6 @@ namespace Characters.Player
             base.FixedUpdateControl();
             PlayerCamera.SetCameraPosition(player.position);
             PlayerCamera.SetCameraRotation(GetTargetRotation());
-        }
-
-        // 입력값에 따른 상태 측정
-        protected override void SetCharacterState()
-        {
-
         }
 
         private void OnDrawGizmos()

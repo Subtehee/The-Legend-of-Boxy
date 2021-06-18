@@ -19,7 +19,6 @@ namespace Characters.State
     public interface IState
     {
         public void Enter();    // 상태 입력
-        //public void Wait();    // 상태 대기
         public void Execute();  // 상태 실행
         public void Exit();     // 상태 종료
     }

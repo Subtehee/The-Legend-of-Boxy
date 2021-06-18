@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-14
+// 수정 : 2021-06-18
 // 작성 : sujeong
 // ============================
 
@@ -14,6 +14,7 @@ namespace Characters
         [HideInInspector] public Vector3 moveDirection = Vector3.zero;
 
         public LayerMask staticLayer = 0;
+
         protected bool IsGrounded = false;    // Check Grounded
 
         protected virtual void Awake()
@@ -24,10 +25,7 @@ namespace Characters
 
         public virtual void UpdateControl() { }         // Update()
 
-        public virtual void FixedUpdateControl()        // FixedUpdate()
-        {
-            CheckGrounded();
-        }
+        public virtual void FixedUpdateControl() { }    // FixedUpdate()
 
         protected virtual void SetCharacterState() { }  // Set FSM
         

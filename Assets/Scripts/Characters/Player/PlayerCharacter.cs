@@ -5,14 +5,31 @@
 
 using System.Collections;
 using UnityEngine;
-
+using Characters.State;
 
 namespace Characters.Player
 {
+    // 플레이어의 상태 열거형
+    public enum MoveState
+    {
+        IDLE,
+        RUN,
+        JUMP,
+        FALL,
+        DOWNFALL,
+        GLIDE,
+        SPRINT,
+        AUTOATTACK,
+        STRONGATTACK,
+        SKILLATTACK,
+        DIE
+    }
+
     public class PlayerCharacter : Character
     {
 
-        // 캐릭터의 상태 FSM
+        [SerializeField] private FiniteStateMachine<PlayerCharacter> FSM = null;
+        //public MoveState State = MoveState.IDLE;
 
         [Header("Movement Setting")]
         public float CurMoveSpeed = 0.0f;       // 현재 속도
@@ -26,17 +43,22 @@ namespace Characters.Player
         public float GroundedGravity = 5.0f;    // 접지 상태
         public float AirborneGravity = 20.0f;   // 공중 낙하
         public float GlidingGravity = 10.0f;    // 글라이딩
-        
+
+
         protected override void Awake()
         {
             base.Awake();
+            FSM ??= FindObjectOfType<FiniteStateMachine<PlayerCharacter>>();
+
+            // 행동 명시
+
         }
 
         protected override void Update()
         {
             base.Update();
-            // 플레이어 움직이기
 
+            // 플레이어 움직이기
         }
 
         protected override void FixedUpdate()
@@ -44,7 +66,9 @@ namespace Characters.Player
             base.FixedUpdate();
         }
 
-        // 상태값에 따른 캐릭터 행동
+        // 조건 명시
+
+
     }
 
 }
