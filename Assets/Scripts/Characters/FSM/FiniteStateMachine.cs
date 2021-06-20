@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-20
+// 수정 : 2021-06-21
 // 작성 : sujeong
 // ============================
 
@@ -9,52 +9,68 @@ using UnityEngine;
 
 namespace Characters.FSM
 {
-    public class FiniteStateMachine
+    public class FiniteStateMachine<T>
     {
-        private IState CurrentState = null;     // current state
-        private IState PreviouseState = null;   // previouse state
-        private IState GlobalState = null;      // Can translate from any state
-        
-        public void Awake()
-        {
-            CurrentState = null;    
-            PreviouseState = null;  
-            GlobalState = null;     
-        }
+        private T owner;
+        private IState CurrentState = null;
 
+        private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
+        private List<Transition> _currentTransitions = new List<Transition>();
+        private List<Transition> _anyTransitions = new List<Transition>();
+
+        private static List<Transition> EmptyTransitions = new List<Transition>(0);
+        
         public void UpdateState()
         {
-            GlobalState?.UpdateState();
+            var transition = GetTransition();
+
             CurrentState?.UpdateState();
         }
 
         public void FixedUpdateState()
         {
-            GlobalState?.FixedUpdateState();
-            GlobalState?.FixedUpdateState();
+            CurrentState?.FixedUpdateState();
         }
 
-        // 상태 초기화
-        public void Configure(IState initialState)
+        public void SetState(IState state)
         {
-            ChangeState(initialState);      // IDLE 또는 초기 상태
-        }
+            if (state == CurrentState)
+                return;
 
-        // 상태 변경
-        public void ChangeState(IState NewState)
-        {
-            PreviouseState = CurrentState;
             CurrentState?.Exit();
+            CurrentState = state;
 
-            CurrentState = NewState;
-            NewState?.Enter();
+            _transitions.TryGetValue(_currentTransitions.GetType(), out _currentTransitions);
+            if (_currentTransitions == null)
+                _currentTransitions = EmptyTransitions;
+
+            CurrentState.Enter();
         }
 
-        // 이전 상태로 되돌리기
-        public void RevertToPreviouseState()
+        public void AddTransition(IState from, IState to, Func<bool> predicate, Enum id)
         {
-            if (PreviouseState != null)
-                ChangeState(PreviouseState);
+            // 
+            if(_transitions.TryGetValue(from.GetType(), out var transitions) == false)
+            {
+                transitions = new List<Transition>();
+                _transitions[from.GetType()] = transitions;
+            }
+
+            // Add new transition
+            transitions.Add(new Transition(id, to, predicate));     
+        }
+
+        private Transition GetTransition()
+        {
+            foreach (var transition in _anyTransitions)
+                if (transition.Condition())
+                    return transition;
+
+            foreach (var transition in _currentTransitions)
+                if (transition.Condition())
+                    return transition;
+
+            return null;
         }
     }
 }
