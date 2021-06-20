@@ -11,16 +11,16 @@ CharacterFSM : Character 특성에 따라 IState 재정의
 
 CharacterController
     - CharacterFSM -> owner지정
-
  */
 
-namespace Characters.State
+namespace Characters.FSM
 {
     public interface IState
     {
-        public void Enter();    // 상태 입력
-        public void Execute();  // 상태 실행
-        public void Exit();     // 상태 종료
+        public void Enter();
+        public void UpdateState();     
+        public void FixedUpdateState();
+        public void Exit();     
     }
 
 }

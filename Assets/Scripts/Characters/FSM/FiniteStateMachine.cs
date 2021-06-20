@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-17
+// 수정 : 2021-06-20
 // 작성 : sujeong
 // ============================
 
@@ -7,20 +7,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Characters.State
+namespace Characters.FSM
 {
-
-    [CreateAssetMenu(fileName ="FiniteStateMachine", menuName ="FSM/FiniteStateMachine")]
-    public class FiniteStateMachine<T> : ScriptableObject where T : MonoBehaviour
+    public class FiniteStateMachine
     {
-        private T owner;
         private IState CurrentState = null;     // current state
         private IState PreviouseState = null;   // previouse state
-        private IState GlobalState = null;      // Can transition from any state
-
-        // 상태 전환 조건 목록
-
-
+        private IState GlobalState = null;      // Can translate from any state
+        
         public void Awake()
         {
             CurrentState = null;    
@@ -30,14 +24,19 @@ namespace Characters.State
 
         public void UpdateState()
         {
-            if (GlobalState != null) GlobalState.Execute();
-            if (CurrentState != null) CurrentState.Execute();
+            GlobalState?.UpdateState();
+            CurrentState?.UpdateState();
+        }
+
+        public void FixedUpdateState()
+        {
+            GlobalState?.FixedUpdateState();
+            GlobalState?.FixedUpdateState();
         }
 
         // 상태 초기화
-        public void Configure(T owner, IState initialState)
+        public void Configure(IState initialState)
         {
-            this.owner = owner;             // 실행 대상
             ChangeState(initialState);      // IDLE 또는 초기 상태
         }
 
@@ -45,12 +44,10 @@ namespace Characters.State
         public void ChangeState(IState NewState)
         {
             PreviouseState = CurrentState;
-            if (CurrentState != null)
-                CurrentState.Exit();
+            CurrentState?.Exit();
 
             CurrentState = NewState;
-            if (NewState != null)
-                CurrentState.Enter();
+            NewState?.Enter();
         }
 
         // 이전 상태로 되돌리기

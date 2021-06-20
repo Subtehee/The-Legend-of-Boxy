@@ -1,17 +1,17 @@
 // ============================
-// 수정 : 2021-06-14
+// 수정 : 2021-06-20
 // 작성 : sujeong
 // ============================
 
 using System.Collections;
 using UnityEngine;
-using Characters.State;
+using Characters.FSM;
 
 namespace Characters.Player
 {
     // 플레이어의 상태 열거형
     [System.Serializable]
-    public enum MoveState
+    public enum States
     {
         IDLE,
         RUN,
@@ -29,9 +29,7 @@ namespace Characters.Player
 
     public class PlayerCharacter : Character
     {
-
-        [SerializeField] private FiniteStateMachine<PlayerCharacter> FSM = null;
-        public MoveState State = MoveState.IDLE;
+        public States State = States.IDLE;      // init State
 
         [Header("Movement Setting")]
         public float CurMoveSpeed = 0.0f;       // 현재 속도
@@ -46,13 +44,12 @@ namespace Characters.Player
         public float AirborneGravity = 20.0f;   // 공중 낙하
         public float GlidingGravity = 10.0f;    // 글라이딩
 
-        private bool IsGrounded = false;
-        private bool Climbable = false;
+        private bool IsGrounded = false;        // 땅에 닿고 있는지
+        private bool Climbable = false;         // 절벽을 오를 수 있는 상태인지
 
         protected override void Awake()
         {
             base.Awake();
-            FSM ??= FindObjectOfType<FiniteStateMachine<PlayerCharacter>>();
 
             // 행동 조건
             // <Movement>
@@ -134,36 +131,35 @@ namespace Characters.Player
 
             // <Combat>
             //*AUTOATTACK
-            //  - From : IDLE   / Condition : AttackInput 
-            //  - From : RUN    / Condition : AttackInput 
-            //  - From : SPRINT / Condition : AttackInput
+            //  - From : IDLE   / Condition : AttackInput && HasWeapon
+            //  - From : RUN    / Condition : AttackInput && HasWeapon
+            //  - From : SPRINT / Condition : AttackInput && HasWeapon
 
             //*STRONGATTACK
-            //  - From : AUTOATTACK / Condition : AttackInput Exist && Not ButtonUP
+            //  - From : AUTOATTACK / Condition : AttackInput Exist && Not ButtonUp && HasWeapon
 
             //*SKILLATTACK
-            //  - From : IDLE   / Condition : SkillInput
-            //  - From : RUN    / Condition : SkillInput
-            //  - From : SPRINT / Condition : SkillInput
+            //  - From : IDLE   / Condition : SkillInput && HasWeapon
+            //  - From : RUN    / Condition : SkillInput && HasWeapon
+            //  - From : SPRINT / Condition : SkillInput && HasWeapon
+
+            //*Aiming
+            //  - From : IDLE   / Condition : AttackInput && Not ButtonUp && HasBow
+            //  - From : RUN    / Condition : AttackInput && Not ButtonUp && HasBow
+            //  - From : SPRINT / Condition : AttackInput && Not ButtonUp && HasBow
         }
 
         protected override void Update()
         {
             base.Update();
-
-            // 플레이어 움직이기
-
         }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
-
         }
 
         // 조건 명시
-
-
     }
 
 }
