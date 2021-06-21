@@ -13,8 +13,11 @@ namespace Characters.FSM
     {
         private IState CurrentState = null;
 
-        private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
-        private List<Transition> _currentTransitions = new List<Transition>();
+        // 상태(타입)별 전환 목록 저장
+        private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>(); 
+        // 현재 실행중인 상태의 전환 가능 목록
+        private List<Transition> _currentTransitions = new List<Transition>();                              
+        // 어떤 상태에서도 전환 가능한 목록 저장
         private List<Transition> _anyTransitions = new List<Transition>();
 
         private static List<Transition> EmptyTransitions = new List<Transition>(0);
@@ -42,7 +45,7 @@ namespace Characters.FSM
             CurrentState?.Exit();
             CurrentState = state;
 
-            // Add currentTransition
+            // 현재 실행중인 상태의 전환 가능 목록 가져오기
             _transitions.TryGetValue(CurrentState.GetType(), out _currentTransitions);
             if (_currentTransitions == null)
                 _currentTransitions = EmptyTransitions;
@@ -70,7 +73,6 @@ namespace Characters.FSM
 
         private Transition GetTransition()
         {
-
             foreach (var transition in _anyTransitions)
                 if (transition.Condition())
                     return transition;

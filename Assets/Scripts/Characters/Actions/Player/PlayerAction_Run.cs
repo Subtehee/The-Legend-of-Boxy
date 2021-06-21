@@ -31,7 +31,6 @@ namespace Characters.FSM.States
         public void Enter() 
         {
             _player.State = Player.States.RUN;
-            Debug.Log("Enter to Run State"); 
         }
 
         // moveDirection == MoveInput * Camera.forward.normalized

@@ -14,7 +14,7 @@ namespace Characters.Player
         public PlayerCamera PlayerCamera = null;
 
         [Header("User Setting")]
-        [Range(1, 10)]public float CameraSensitivity = 5.0f;
+        [Range(0.5f, 5.0f)]public float CameraSensitivity = 3.0f;
 
         private Transform player = null;
 

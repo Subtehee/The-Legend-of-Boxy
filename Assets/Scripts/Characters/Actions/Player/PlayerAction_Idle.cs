@@ -22,7 +22,6 @@ namespace Characters.FSM.States
         public void Enter()
         {
             _player.State = Player.States.IDLE;
-            Debug.Log("Enter to IDLE state");
         }
 
         public void UpdateState() { }
@@ -32,7 +31,10 @@ namespace Characters.FSM.States
 
         
         }
-        public void Exit() { Debug.Log("Exit from IDLE State"); }
+        public void Exit() 
+        { 
+            Debug.Log("Exit from IDLE State"); 
+        }
     }
 
 }
