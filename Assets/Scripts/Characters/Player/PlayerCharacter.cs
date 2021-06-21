@@ -4,8 +4,10 @@
 // ============================
 
 using System.Collections;
+using System;
 using UnityEngine;
 using Characters.FSM;
+using Characters.FSM.States;
 
 namespace Characters.Player
 {
@@ -29,11 +31,14 @@ namespace Characters.Player
 
     public class PlayerCharacter : Character
     {
+        public PlayerController Controller = null;
+
+        [Header("Movement State")]
         public States State = States.IDLE;      // init State
 
         [Header("Movement Setting")]
         public float CurMoveSpeed = 0.0f;       // 현재 속도
-        public float RunSpeed = 10.0f;          // 달리기
+        public float RunSpeed = 10.0f;       // 달리기
         public float SprintSpeed = 20.0f;       // 전력질주
         public float Acceleration = 30.0f;      // 가속 --> Dash
         public float TurnSpeed = 3.0f;          // 회전 속도
@@ -44,6 +49,9 @@ namespace Characters.Player
         public float AirborneGravity = 20.0f;   // 공중 낙하
         public float GlidingGravity = 10.0f;    // 글라이딩
 
+        [HideInInspector] public Transform playerDirection = null;
+        [HideInInspector] public Vector2 moveDirection = Vector2.zero;
+
         private bool IsGrounded = false;        // 땅에 닿고 있는지
         private bool Climbable = false;         // 절벽을 오를 수 있는 상태인지
 
@@ -51,28 +59,49 @@ namespace Characters.Player
         {
             base.Awake();
 
-            // 행동 조건
-            // <Movement>
-            //*IDLE
-            //  - Init
-            //  - From : Run        / Condition : No MoveInput
-            //  - From : SPRINT     / Condition : No MoveInput
-            //  - From : CLIMB      / Condition : Climb the Top <Raycasting Head>
-            //  - From : LANDING    / Condition : AUTO
-            //  - From : HIT        / Condition : AUTO
-            //  - From : ALL ATTACK / Condition : AUTO
+            rigid = GetComponent<Rigidbody>();
+            anim = GetComponent<Animator>();
+
+            Controller ??= GetComponent<PlayerController>();
+
+            var run = new PlayerAction_Run(this, rigid, anim, RunSpeed);
+            var idle = new PlayerAction_Idle(this, anim);
+
+            // Add Transitions
+            At(idle, run, HasMoveInput);
+            At(run, idle, HasNotMoveInput);
+
+            void At(IState from, IState to, Func<bool> condition) => FSM.AddTransition(from, to, condition);
+
+            FSM.SetState(idle);     // init state
+
+            bool HasMoveInput() => Controller.PlayerInput.HasMoveInput;
+            bool HasNotMoveInput() => !HasMoveInput();
+
+            // 행동 조건 (From)
+            //*IDLE (Init)
+            //  - To : RUN          / Condition : MoveInput     / Delay : No
+            //  - To : JUMP         / Condition : JumpInput     / Delay : No
+            //  - To : ATTACK       / Condition : ATTACK INPUT  / Delay : No
+            //  - To : HIT          / Condition : Get Damage    / Delay : No
 
             //*RUN
-            //  - From : IDLE       / Condition : MoveInput
-            //  - From : DASH       / Condition : (DASH is Over) && MoveInput
-            //  - From : SPRINT     / Condition : Stamina Empty || DashInput
+            //  - To : IDLE         / Condition : No Input              / Delay : Velocity Zero
+            //  - To : JUMP         / Condition : JumpInput             / Delay : No
+            //  - To : DASH         / Condition : DashInput             / Delay : No
+            //  - To : CLIMB        / Condition : Climbable             / Delay : No
+            //  - To : FALL         / Condition : !IsGrounded && Range  / Delay : No
+            //  - To : DOWNFALL     / Condition : !IsGrounded && !Range / Delay : NO
+            //  - To : ATTACK       / Condition : ATTACK INPUT          / Delay : No
 
             //*DASH
-            //  - From : IDLE           / Condition : DashInput && Stamina Exist
-            //  - From : RUN            / Condition : DashInput && Stamina Exist
-            //  - From : LANDING        / Condition : DashInput && Stamina Exist --> No need IDLE
-            //  - From : AUTOATTACK     / Condition : DashInput && Stamina Exist
-            //  - From : STRONGATTACK   / Condition : DashInput && Stamina Exist
+            //  - To : IDLE     / Condition : No Input          / Delay : Dash Motion Over
+            //  - To : SPRINT   / Condition : Keep DashInput    / Delay : Dash Motion Over
+            //  - To : JUMP     / Condition : JumpInput         / Delay : No
+            //  - To : ATTACK   / Condition : ATTACK INPUT      / Delay : Dash Motion Over
+            //  - To :
+
+            // TODO : !!!!!
 
             //*SPRINT
             //  - From : DASH   / Condition : Stamina Exist && DashInput Exist && Not ButtonUp
@@ -152,11 +181,17 @@ namespace Characters.Player
         protected override void Update()
         {
             base.Update();
+            Controller.UpdateControl();
+
+            playerDirection = Controller.GetPlayerDirection();
+            moveDirection = Controller.GetMoveDirection();
+
         }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
+            Controller.FixedUpdateControl();
         }
 
         // 조건 명시

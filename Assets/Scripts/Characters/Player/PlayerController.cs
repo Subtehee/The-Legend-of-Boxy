@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-18
+// 수정 : 2021-06-21
 // 작성 : sujeong
 // ============================
 
@@ -15,8 +15,6 @@ namespace Characters.Player
 
         [Header("User Setting")]
         [Range(1, 10)]public float CameraSensitivity = 5.0f;
-
-        [HideInInspector] public Vector3 MoveDirection = Vector3.zero;      // Player move direction
 
         private Transform player = null;
 
@@ -34,8 +32,11 @@ namespace Characters.Player
         public override void UpdateControl()
         {
             PlayerInput.UpdateInputs();
-            MoveDirection = PlayerInput.CameraInput;    // Player Move Direction
         }
+
+
+        public Vector2 GetMoveDirection() => PlayerInput.MoveInput;
+        public Transform GetPlayerDirection() => PlayerCamera.transform;
 
         public override void FixedUpdateControl()
         {

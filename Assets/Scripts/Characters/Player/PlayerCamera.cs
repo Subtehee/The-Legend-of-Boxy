@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-14
+// 수정 : 2021-06-21
 // 작성 : sujeong
 // ============================
 
@@ -9,6 +9,7 @@ namespace Characters.Player
 {
     public class PlayerCamera : MonoBehaviour
     {
+        // for move player
         public Transform Pivot = null;      
         public Transform Socket = null;     
 
@@ -55,11 +56,9 @@ namespace Characters.Player
         {
             RaycastHit hit;
             if (Physics.SphereCast(transform.position, CollisionRadius, -Socket.forward,
-                out hit, MaxLengthFromTarget, staticLayer))
-            {
-                Debug.Log("hitted");
+                                    out hit, MaxLengthFromTarget, staticLayer))
                 return hit.distance;
-            }
+
             else return MaxLengthFromTarget;
         }
 

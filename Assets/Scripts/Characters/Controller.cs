@@ -9,8 +9,6 @@ namespace Characters
 {
     public class Controller : MonoBehaviour
     {
-        [HideInInspector] public Vector3 moveDirection = Vector3.zero;
-
         public LayerMask staticLayer = 0;
 
         protected bool IsGrounded = false;    // Check Grounded

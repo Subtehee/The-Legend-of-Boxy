@@ -12,7 +12,7 @@ namespace Characters.Player
         public readonly float moveCameraAxisDeadZone = 0.2f;
         public float sprintInputTime = 0.7f;    // not certain...
 
-        public Vector2 MoveInput { get; private set; }
+        public Vector2 MoveInput { get; private set; }  
         public Vector2 CameraInput { get; private set; }
         public bool JumpInput { get; private set; }
         public bool DashInput { get; private set; }

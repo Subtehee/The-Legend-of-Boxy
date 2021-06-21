@@ -9,9 +9,8 @@ using UnityEngine;
 
 namespace Characters.FSM
 {
-    public class FiniteStateMachine<T>
+    public class FiniteStateMachine
     {
-        private T owner;
         private IState CurrentState = null;
 
         private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
@@ -19,10 +18,13 @@ namespace Characters.FSM
         private List<Transition> _anyTransitions = new List<Transition>();
 
         private static List<Transition> EmptyTransitions = new List<Transition>(0);
-        
+
+        // Transition Tick
         public void UpdateState()
         {
             var transition = GetTransition();
+            if (transition != null)
+                SetState(transition.To);
 
             CurrentState?.UpdateState();
         }
@@ -40,28 +42,35 @@ namespace Characters.FSM
             CurrentState?.Exit();
             CurrentState = state;
 
-            _transitions.TryGetValue(_currentTransitions.GetType(), out _currentTransitions);
+            // Add currentTransition
+            _transitions.TryGetValue(CurrentState.GetType(), out _currentTransitions);
             if (_currentTransitions == null)
                 _currentTransitions = EmptyTransitions;
 
             CurrentState.Enter();
         }
 
-        public void AddTransition(IState from, IState to, Func<bool> predicate, Enum id)
+        public void AddTransition(IState from, IState to, Func<bool> predicate)
         {
-            // 
-            if(_transitions.TryGetValue(from.GetType(), out var transitions) == false)
+            // 전환 목록이 있는지 확인
+            if (_transitions.TryGetValue(from.GetType(), out var transitions) == false)
             {
                 transitions = new List<Transition>();
                 _transitions[from.GetType()] = transitions;
             }
 
-            // Add new transition
-            transitions.Add(new Transition(id, to, predicate));     
+            // 특정 상태의 전환 가능 목록 추가
+            transitions.Add(new Transition(to, predicate));
+        }
+
+        public void AddAnyTransition(IState state, Func<bool> predicate)
+        {
+            _anyTransitions.Add(new Transition(state, predicate));
         }
 
         private Transition GetTransition()
         {
+
             foreach (var transition in _anyTransitions)
                 if (transition.Condition())
                     return transition;
