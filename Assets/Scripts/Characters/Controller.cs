@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-18
+// 수정 : 2021-06-22
 // 작성 : sujeong
 // ============================
 
@@ -24,18 +24,6 @@ namespace Characters
         public virtual void FixedUpdateControl() { }    // FixedUpdate()
 
         protected virtual void SetCharacterState() { }  // Set FSM
-        
-        // 캐릭터가 접지 상태인지 체크
-        protected void CheckGrounded()
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, -transform.up, out hit, 1.0f, staticLayer))
-            {
-                if (hit.distance < float.Epsilon)
-                    IsGrounded = true;
-            }
-            else IsGrounded = false;
-        }
     }
 }
 

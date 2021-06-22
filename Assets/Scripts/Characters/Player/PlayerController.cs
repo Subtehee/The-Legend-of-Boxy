@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-21
+// 수정 : 2021-06-22
 // 작성 : sujeong
 // ============================
 
@@ -10,11 +10,10 @@ namespace Characters.Player
 {
     public class PlayerController : Controller
     {
-        public PlayerInput PlayerInput = null;
         public PlayerCamera PlayerCamera = null;
 
         [Header("User Setting")]
-        [Range(0.5f, 5.0f)]public float CameraSensitivity = 3.0f;
+        [Range(1.0f, 4.0f)]public float CameraSensitivity = 2.0f;
 
         private Transform player = null;
 
@@ -31,11 +30,9 @@ namespace Characters.Player
 
         public override void UpdateControl()
         {
-            PlayerInput.UpdateInputs();
+            InputManager.Instance.UpdateInputs();
         }
 
-
-        public Vector2 GetMoveDirection() => PlayerInput.MoveInput;
         public Transform GetPlayerDirection() => PlayerCamera.transform;
 
         public override void FixedUpdateControl()
@@ -55,13 +52,15 @@ namespace Characters.Player
         {
             Vector2 rotation = Vector2.zero;
 
-            if (PlayerInput.HasCameraInput)
+            if (InputManager.Instance.HasCameraInput)
             {
-                rotation.x = PlayerInput.CameraInput.x * CameraSensitivity;   // yaw
-                rotation.y = PlayerInput.CameraInput.y * CameraSensitivity;   // pitch
+                rotation.x = InputManager.Instance.CameraInput.x * CameraSensitivity;   // yaw
+                rotation.y = InputManager.Instance.CameraInput.y * CameraSensitivity;   // pitch
             }
             return rotation;
         }
+
+        // 접지 상태 체크
     }
 }
 

@@ -20,7 +20,7 @@ namespace Characters.Player
         public float TargetOffset = 1.6f;
         public float MinPitchAngle = -45.0f;
         public float MaxPitchAngle = 75.0f;
-        public float PositionDamp = 7.0f;
+        public float PositionDamp = 5.0f;
         public float RotationDamp = 1.0f;
         public LayerMask staticLayer = 0;
 
