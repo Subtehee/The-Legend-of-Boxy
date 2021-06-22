@@ -85,8 +85,8 @@ namespace Characters.FSM.States
         {
             // (currentSpeed --> targetSpeed) < MaxSpeed
             // 급격하게 증가하고 급격하게 감소해야함 --> targetSpeed와 currentSpeed의 차이로 수치변화의 경사를 지정
-            // 
-            _rigidbody.AddForce(GetMoveDirection() * moveSpeed, ForceMode.VelocityChange);
+            // targetSpeed - currentSpeed / 
+            _rigidbody.AddForce(GetMoveDirection() * moveSpeed * Time.deltaTime, ForceMode.VelocityChange);
             _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, moveSpeed);
 
             Debug.Log(_rigidbody.velocity);
