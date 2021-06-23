@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -945,19 +945,9 @@ MonoBehaviour:
   rigid: {fileID: 0}
   anim: {fileID: 0}
   Controller: {fileID: 0}
+  Stat: {fileID: 11400000, guid: 91fbafa7a6c976c4b9c16ab323ac5abe, type: 2}
   State: 1
-  CurMoveSpeed: 0
-  RunSpeed: 8
-  SprintSpeed: 20
-  Acceleration: 40
-  TurnSpeed: 3
-  JumpForce: 5
-  GroundedGravity: 5
-  AirborneGravity: 20
-  GlidingGravity: 10
-  MaxFallGravity: 40
   playerDirection: {fileID: 0}
-  moveDirection: {x: 0, y: 0}
 --- !u!114 &1444586483
 MonoBehaviour:
   m_ObjectHideFlags: 0

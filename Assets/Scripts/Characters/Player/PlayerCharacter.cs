@@ -39,7 +39,7 @@ namespace Characters.Player
         [Header("Movement State")]
         public States State = States.IDLE;      // init State
 
-        private Transform playerDirection = null;
+        public Transform playerDirection = null;
         private Vector2 moveDirection = Vector2.zero;
 
         private bool IsGrounded = false;        // ¶¥¿¡ ´ê°í ÀÖ´ÂÁö
@@ -105,6 +105,8 @@ namespace Characters.Player
         {
             base.Update();
             Controller.UpdateControl();
+
+            playerDirection = Controller.PlayerCamera.transform;
         }
 
         protected override void FixedUpdate()
