@@ -36,7 +36,7 @@ namespace Characters.Player
 
         public void UpdateInputs()
         {
-            MoveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            MoveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
             Vector2 cameraInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
             HasMoveInput = MoveInput.magnitude > 0.0f;

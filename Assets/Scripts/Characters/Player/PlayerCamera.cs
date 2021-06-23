@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-21
+// 수정 : 2021-06-23
 // 작성 : sujeong
 // ============================
 
@@ -42,13 +42,17 @@ namespace Characters.Player
         public void SetCameraPosition(Vector3 targetPosition)
         {
             // Set rig position
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition + (Vector3.up * TargetOffset),
-                ref rigVelocity, PositionDamp * Time.fixedDeltaTime);
+            transform.position = Vector3.Lerp(transform.position, targetPosition + (Vector3.up * TargetOffset), 
+                                                PositionDamp * Time.fixedDeltaTime);
+            //transform.position = Vector3.SmoothDamp(transform.position, targetPosition + (Vector3.up * TargetOffset),
+            //    ref rigVelocity, PositionDamp * Time.deltaTime);
 
             // Set socket position
             Vector3 socketTargetPos = transform.position + (-Pivot.forward * GetTargetLength());
-            Socket.position = Vector3.SmoothDamp(Socket.position, socketTargetPos,
-                ref socketVelocity, PositionDamp * Time.fixedDeltaTime);
+            Socket.position = Vector3.Lerp(Socket.position, socketTargetPos, PositionDamp * Time.fixedDeltaTime);
+
+            //Socket.position = Vector3.SmoothDamp(Socket.position, socketTargetPos,
+            //    ref socketVelocity, PositionDamp * Time.deltaTime);
         }
 
         // 타겟과의 거리 측정

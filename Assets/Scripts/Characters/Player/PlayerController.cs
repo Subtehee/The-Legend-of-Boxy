@@ -13,13 +13,12 @@ namespace Characters.Player
         public PlayerCamera PlayerCamera = null;
 
         [Header("User Setting")]
-        [Range(1.0f, 4.0f)]public float CameraSensitivity = 2.0f;
+        [Range(1.0f, 10.0f)]public float CameraSensitivity = 5.0f;
 
         private Transform player = null;
 
         protected override void Awake()
-        {
-            base.Awake();
+        {            base.Awake();
             player = transform;
         }
 

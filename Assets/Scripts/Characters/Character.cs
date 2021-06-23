@@ -14,8 +14,8 @@ namespace Characters
     [RequireComponent(typeof(Animator))]
     public class Character : MonoBehaviour
     {
-        public Rigidbody rigid = null;
-        public Animator anim = null;
+        [HideInInspector] public Rigidbody rigid = null;
+        [HideInInspector] public Animator anim = null;
 
         protected FiniteStateMachine FSM = null;
 

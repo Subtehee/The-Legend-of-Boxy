@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-22
+// 수정 : 2021-06-23
 // 작성 : sujeong
 // ============================
 
@@ -15,14 +15,13 @@ namespace Characters.FSM.States
         private readonly Animator _animator = null;
 
         private readonly float _gravity = 0.0f;
-        private readonly float _accel = 2.0f;
         private readonly float _runSpeed = 0.0f;
         private readonly float _sprintSpeed = 0.0f;
-        private readonly float _rotationSmoothTime = 0.1f;
+        private readonly float _rotationSmoothTime = 0.01f;
 
-        private float curSpeed = 0.0f;
-        private float moveSpeed = 0.0f;             // run / sprint
-        private float smoothVelocity = 0.0f;        // for smoothDamp
+        private float curSpeed = 0.0f;          // current Speed
+        private float moveSpeed = 0.0f;         // run / sprint
+        private float smoothVelocity = 0.0f;    // for smoothDamp
 
         private Vector2 _moveInput = Vector2.zero;  // move direction
         private Transform _direction = null;        // Get camera direction
@@ -44,9 +43,10 @@ namespace Characters.FSM.States
 
         public void Enter() 
         {
-            //Debug.Log("Enter Move State");
+            _player.State = Player.States.RUN;
+            _animator.SetInteger("State", (int)_player.State);
 
-            _player.State = Player.States.MOVE;
+            curSpeed = 0.0f;
         }
 
         // moveDirection == MoveInput * Camera.forward.normalized
@@ -85,11 +85,13 @@ namespace Characters.FSM.States
         {
             // (currentSpeed --> targetSpeed) < MaxSpeed
             // 급격하게 증가하고 급격하게 감소해야함 --> targetSpeed와 currentSpeed의 차이로 수치변화의 경사를 지정
-            // targetSpeed - currentSpeed / 
-            _rigidbody.AddForce(GetMoveDirection() * moveSpeed * Time.deltaTime, ForceMode.VelocityChange);
-            _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, moveSpeed);
 
-            Debug.Log(_rigidbody.velocity);
+            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Time.fixedDeltaTime);
+            _rigidbody.velocity = GetMoveDirection() * moveSpeed + _player.transform.up * _gravity;
+            // TODO : 속도 드라마틱하게 올리기
+
+            //_rigidbody.AddForce(GetMoveDirection() * moveSpeed, ForceMode.VelocityChange);
+            //_rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, moveSpeed);
         }
 
         private Vector3 GetMoveDirection()
@@ -97,10 +99,7 @@ namespace Characters.FSM.States
             return (_direction.forward * _moveInput.y + _direction.right * _moveInput.x).normalized;
         }
 
-        public void Exit()
-        {
-            // TODO : animator set
-        }
+        public void Exit() { }
 
     }
 

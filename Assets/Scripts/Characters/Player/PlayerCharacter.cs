@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-20
+// 수정 : 2021-06-23
 // 작성 : sujeong
 // ============================
 
@@ -8,6 +8,7 @@ using System;
 using UnityEngine;
 using Characters.FSM;
 using Characters.FSM.States;
+using Characters.Stat;
 
 namespace Characters.Player
 {
@@ -16,7 +17,8 @@ namespace Characters.Player
     public enum States
     {
         IDLE,
-        MOVE,
+        RUN,
+        SPRINT,
         DASH,
         JUMP,
         CLIMB,
@@ -32,26 +34,13 @@ namespace Characters.Player
     public class PlayerCharacter : Character
     {
         public PlayerController Controller = null;
+        [SerializeField] private PlayerStat Stat = null;     // Player Setting
 
         [Header("Movement State")]
         public States State = States.IDLE;      // init State
 
-        [Header("Movement Setting")]
-        public float CurMoveSpeed = 0.0f;   // 현재 속도
-        public float RunSpeed = 8.0f;      // 달리기
-        public float SprintSpeed = 20.0f;   // 전력질주
-        public float Acceleration = 40.0f;  // 엑셀
-        public float TurnSpeed = 3.0f;      // 회전 속도
-        public float JumpForce = 5.0f;      // 점프
-
-        [Header("Gravity Setting")]
-        public float GroundedGravity = 5.0f;    // 접지 상태
-        public float AirborneGravity = 20.0f;   // 공중 낙하
-        public float GlidingGravity = 10.0f;    // 글라이딩
-        public float MaxFallGravity = 40.0f;    // 최대 낙하 속도
-
-        [HideInInspector] public Transform playerDirection = null;
-        [HideInInspector] public Vector2 moveDirection = Vector2.zero;
+        private Transform playerDirection = null;
+        private Vector2 moveDirection = Vector2.zero;
 
         private bool IsGrounded = false;        // 땅에 닿고 있는지
         private bool Climbable = false;         // 절벽을 오를 수 있는 상태인지
@@ -63,16 +52,17 @@ namespace Characters.Player
             rigid = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
             Controller ??= GetComponent<PlayerController>();
+            Stat ??= FindObjectOfType<PlayerStat>();
 
             // Actions
-            var idle = new PlayerAction_Idle(this, anim, GroundedGravity);
-            var move = new PlayerAction_Move(this, rigid, anim, GroundedGravity, RunSpeed, SprintSpeed, Acceleration);
+            var idle = new PlayerAction_Idle(this, rigid, anim, Stat.GroundedGravity, Stat.Acceleration);
+            var run = new PlayerAction_Move(this, rigid, anim, Stat.GroundedGravity, Stat.RunSpeed, Stat.SprintSpeed, Stat.Acceleration);
 
             // Add Transitions
-            At(idle, move, CanMove);
-            At(move, idle, CantMove);
+            AddTransition(idle, run, CanMove);
+            AddTransition(run, idle, CantMove);
 
-            void At(IState from, IState to, Func<bool> condition) => FSM.AddTransition(from, to, condition);
+            void AddTransition(IState from, IState to, Func<bool> condition) => FSM.AddTransition(from, to, condition);
 
             FSM.SetState(idle);     // init state
 
@@ -115,9 +105,6 @@ namespace Characters.Player
         {
             base.Update();
             Controller.UpdateControl();
-
-            playerDirection = Controller.GetPlayerDirection();
-
         }
 
         protected override void FixedUpdate()
@@ -126,7 +113,26 @@ namespace Characters.Player
             Controller.FixedUpdateControl();
         }
 
-        // 조건 명시
+        // THINK : 공통 움직임을 여기로 빼서 액션 스크립트들이 사용할 수 있도록...
+
+        public void Rotate()
+        {
+
+        }
+
+        public void Move()
+        {
+
+        }
+
+        private Vector3 GetMoveDirection(Vector2 moveInput)
+        {
+            Transform direction = Controller.GetPlayerDirection();
+
+            return (direction.forward * moveInput.y + direction.right * moveInput.x).normalized;
+        }
+
+
     }
 
 }
