@@ -18,7 +18,8 @@ namespace Characters.Player
         private Transform player = null;
 
         protected override void Awake()
-        {            base.Awake();
+        {            
+            base.Awake();
             player = transform;
         }
 

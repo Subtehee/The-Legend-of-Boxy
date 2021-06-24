@@ -1,112 +1,82 @@
 // ============================
-// 수정 : 2021-06-23
+// 수정 : 2021-06-24
 // 작성 : sujeong
 // ============================
 
-using System.Collections;
 using System;
 using UnityEngine;
-using Characters.FSM;
-using Characters.FSM.States;
 using Characters.Stat;
+using Characters.FSM;
+using Characters.FSM.Actions;
 
 namespace Characters.Player
 {
-    // 플레이어의 상태 열거형
-    [System.Serializable]
-    public enum States
-    {
-        IDLE,
-        RUN,
-        SPRINT,
-        DASH,
-        JUMP,
-        CLIMB,
-        FALL,
-        DOWNFALL,
-        GLIDE,
-        AUTOATTACK,
-        STRONGATTACK,
-        SKILLATTACK,
-        DIE
-    }
-
+    
     public class PlayerCharacter : Character
     {
         public PlayerController Controller = null;
-        [SerializeField] private PlayerStat Stat = null;     // Player Setting
+        [SerializeField] private PlayerStat Stat = null;    // Player Settings
 
-        [Header("Movement State")]
-        public States State = States.IDLE;      // init State
+        [Header("Movement Settings")]
+        public float CurMoveSpeed = 0.0f;       // 현재 속도
+        public float RunSpeed = 8.0f;           // 달리기
+        public float SprintSpeed = 15.0f;       // 전력질주
+        public float Acceleration = 40.0f;      // 가속
+        public float Deceleration = 40.0f;      // 감속
+        public float TurnSpeed = 3.0f;          // 회전 속도
+        public float JumpForce = 5.0f;          // 점프
 
-        public Transform playerDirection = null;
-        private Vector2 moveDirection = Vector2.zero;
+        [Header("Gravity Settings")]
+        public float GroundedGravity = -5.0f;   // 접지 상태
+        public float AirborneGravity = -20.0f;  // 공중 낙하
+        public float GlidingGravity = -10.0f;   // 글라이딩
+        public float MaxFallGravity = -40.0f;   // 최대 낙하 속도
 
-        private bool IsGrounded = false;        // 땅에 닿고 있는지
-        private bool Climbable = false;         // 절벽을 오를 수 있는 상태인지
+        private Transform _direction = null;                // for get direction of UserCamera
+        private Vector2 _moveInput = Vector2.zero;          // user input
+        private Vector3 m_moveDirection = Vector3.zero;
 
         protected override void Awake()
         {
             base.Awake();
 
-            rigid = GetComponent<Rigidbody>();
-            anim = GetComponent<Animator>();
+            m_rigidbody = GetComponent<Rigidbody>();
+            m_animator = GetComponent<Animator>();
             Controller ??= GetComponent<PlayerController>();
             Stat ??= FindObjectOfType<PlayerStat>();
 
             // Actions
-            var idle = new PlayerAction_Idle(this, rigid, anim, Stat.GroundedGravity, Stat.Acceleration);
-            var run = new PlayerAction_Move(this, rigid, anim, Stat.GroundedGravity, Stat.RunSpeed, Stat.SprintSpeed, Stat.Acceleration);
+            var idle = new PlayerAction_Idle(this, States.IDLE);
+            var run = new PlayerAction_Run(this, States.RUN);
+            var jump = new PlayerAction_Jump(this, States.JUMP, JumpForce, AirborneGravity);
+            var landing = new PlayerAction_Landing(this, States.LANDING);
 
             // Add Transitions
             AddTransition(idle, run, CanMove);
+            AddTransition(idle, jump, IsJumpInput);
             AddTransition(run, idle, CantMove);
+            AddTransition(run, jump, IsJumpInput);
 
             void AddTransition(IState from, IState to, Func<bool> condition) => FSM.AddTransition(from, to, condition);
 
-            FSM.SetState(idle);     // init state
-
             bool CanMove() => InputManager.Instance.HasMoveInput;
             bool CantMove() => !CanMove();
+            bool IsJumpInput() => InputManager.Instance.JumpInput;
 
-            // 행동 조건 (From)
-            //*IDLE (Init)
-            //  - To : RUN          / Condition : MoveInput     / Delay : No
-            //  - To : JUMP         / Condition : JumpInput     / Delay : No
-            //  - To : ATTACK       / Condition : ATTACK INPUT  / Delay : No
-            //  - To : HIT          / Condition : Get Damage    / Delay : No
-
-            //*RUN
-            //  - To : IDLE         / Condition : No Input              / Delay : Velocity Zero
-            //  - To : JUMP         / Condition : JumpInput             / Delay : No
-            //  - To : DASH         / Condition : DashInput             / Delay : No
-            //  - To : CLIMB        / Condition : Climbable             / Delay : No
-            //  - To : FALL         / Condition : !IsGrounded && Range  / Delay : No
-            //  - To : DOWNFALL     / Condition : !IsGrounded && !Range / Delay : NO
-            //  - To : ATTACK       / Condition : ATTACK INPUT          / Delay : No
-
-            //*DASH
-            //  - To : IDLE     / Condition : No Input          / Delay : Dash Motion Over
-            //  - To : SPRINT   / Condition : Keep DashInput    / Delay : Dash Motion Over
-            //  - To : JUMP     / Condition : JumpInput         / Delay : No
-            //  - To : ATTACK   / Condition : ATTACK INPUT      / Delay : Dash Motion Over
-            //  - To :
-
-            // TODO : !!!!!
-
+            // init state
+            FSM.SetState(idle);     
         }
 
         private void Start()
         {
-            rigid.freezeRotation = true;
+            m_rigidbody.freezeRotation = true;
+            m_rigidbody.useGravity = false;
         }
 
         protected override void Update()
         {
             base.Update();
             Controller.UpdateControl();
-
-            playerDirection = Controller.PlayerCamera.transform;
         }
 
         protected override void FixedUpdate()
@@ -115,26 +85,40 @@ namespace Characters.Player
             Controller.FixedUpdateControl();
         }
 
-        // THINK : 공통 움직임을 여기로 빼서 액션 스크립트들이 사용할 수 있도록...
-
-        public void Rotate()
+        // 공통 움직임 //
+        public override void UpdateMoveDirection()
         {
-
+            _moveInput = InputManager.Instance.MoveInput;
+            _direction = Controller.GetPlayerDirection();
+            m_moveDirection = (_direction.forward * _moveInput.y + _direction.right * _moveInput.x).normalized;
         }
 
-        public void Move()
+        public override void OnRotate()
         {
+            float targetAngle = Mathf.Atan2(_moveInput.x, _moveInput.y) * Mathf.Rad2Deg + _direction.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_smoothVelocity, Stat.RotateSpeed);
 
+            transform.rotation = Quaternion.Euler(0.0f, angle, 0.0f);
         }
 
-        private Vector3 GetMoveDirection(Vector2 moveInput)
+        public override void OnMove(float moveSpeed)
         {
-            Transform direction = Controller.GetPlayerDirection();
+            // Velocity 
+            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Acceleration * Time.fixedDeltaTime);
 
-            return (direction.forward * moveInput.y + direction.right * moveInput.x).normalized;
+            m_rigidbody.velocity = m_moveDirection * targetSpeed;
+            curSpeed = targetSpeed;
         }
 
+        public override void OnDecel()
+        {
+            m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
+                new Vector3(0.0f, m_rigidbody.velocity.y, 0.0f), Deceleration * Time.fixedDeltaTime);
+        }
 
+        public override void OnGravity(float gravity)
+        {
+            m_rigidbody.velocity = new Vector3(m_rigidbody.velocity.x, gravity, m_rigidbody.velocity.z);
+        }
     }
-
 }
