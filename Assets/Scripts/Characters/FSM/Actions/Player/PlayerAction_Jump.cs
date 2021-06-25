@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-24
+// 수정 : 2021-06-25
 // 작성 : sujeong
 // ============================
 
@@ -12,10 +12,11 @@ namespace Characters.FSM.Actions
         private readonly float _jumpForce;
         private readonly float _gravity;
 
+        private bool IsJumped = false;
+
         public PlayerAction_Jump(Character owner, States state, float jumpForce, float gravity)
+            : base(owner, state)
         {
-            this.state = state;
-            _owner = owner;
             _jumpForce = jumpForce;
             _gravity = gravity;
         }
@@ -23,12 +24,22 @@ namespace Characters.FSM.Actions
         public override void Enter()
         {
             base.Enter();
+
+            Debug.Log("Enter the Jump State");
+
+            IsJumped = false;
         }
 
         public override void FixedUpdateState()
         {
-            _owner.AddImpulseForce(_owner.transform.up, _jumpForce);
-            _owner.OnGravity();
+            if (!IsJumped)
+            {
+                _owner.AddImpulseForce(_owner.transform.up, _jumpForce);
+                IsJumped = true;
+            }
+            _owner.OnGravity(_gravity);
+            _owner.FixedUpdateIsGrounded();
+
         }
 
     }

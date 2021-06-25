@@ -11,9 +11,14 @@ namespace Characters.FSM.Actions
     public class PlayerAction_Idle : ActionBase
     {
         private readonly float _gravity = 0.0f;
+        private readonly float _decel = 0.0f;
 
-        public PlayerAction_Idle(Character owner, States state)
-            : base(owner, state) { }
+        public PlayerAction_Idle(Character owner, States state, float gravity, float decel)
+            : base(owner, state) 
+        {
+            _gravity = gravity;
+            _decel = decel;
+        }
 
         public override void Enter()
         {

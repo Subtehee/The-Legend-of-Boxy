@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-22
+// 수정 : 2021-06-25
 // 작성 : sujeong
 // ============================
 
@@ -13,7 +13,7 @@ namespace Characters.Player
         public PlayerCamera PlayerCamera = null;
 
         [Header("User Setting")]
-        [Range(1.0f, 10.0f)]public float CameraSensitivity = 5.0f;
+        [Range(1.0f, 10.0f)] public float CameraSensitivity = 5.0f;
 
         private Transform player = null;
 
@@ -23,29 +23,24 @@ namespace Characters.Player
             player = transform;
         }
 
-        private void OnEnable()
-        {
-            IsGrounded = true;
-        }
-
         public override void UpdateControl()
         {
             InputManager.Instance.UpdateInputs();
         }
 
-        public Transform GetPlayerDirection() => PlayerCamera.transform;
-
         public override void FixedUpdateControl()
         {
             base.FixedUpdateControl();
+
             PlayerCamera.SetCameraPosition(player.position);
             PlayerCamera.SetCameraRotation(GetTargetRotation());
         }
 
-        private void OnDrawGizmos()
+        public override Quaternion GetMoveDirection()
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, -transform.up);
+            charQuaternion = PlayerCamera.transform.rotation;
+
+            return base.GetMoveDirection();
         }
 
         private Vector2 GetTargetRotation()
@@ -59,8 +54,6 @@ namespace Characters.Player
             }
             return rotation;
         }
-
-        // 접지 상태 체크
     }
 }
 

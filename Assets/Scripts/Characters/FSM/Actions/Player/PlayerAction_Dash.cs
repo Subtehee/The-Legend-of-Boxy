@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-24
+// 수정 : 2021-06-25
 // 작성 : sujeong
 // ============================
 
@@ -13,10 +13,9 @@ namespace Characters.FSM.Actions
 
         private readonly float _accel = 0.0f;
 
-        public PlayerAction_Dash(PlayerCharacter player, States state, float accel)
+        public PlayerAction_Dash(Character owner, States state, float accel)
+            : base(owner, state) 
         {
-            this.state = state;
-            _owner = player;
             _accel = accel;
         }
 
@@ -27,10 +26,15 @@ namespace Characters.FSM.Actions
 
         public override void UpdateState() 
         {
-
+            _owner.UpdateMoveDirection();
         }
         
-        public override void FixedUpdateState() { }
+        public override void FixedUpdateState() 
+        {
+            _owner.AddImpulseForce(_owner.moveDirection, _accel);
+
+        }
+
         public override void Exit() { }
     }
 

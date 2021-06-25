@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-21
+// 수정 : 2021-06-25
 // 작성 : sujeong
 // ============================
 
@@ -12,11 +12,12 @@ namespace Characters.FSM
     public class FiniteStateMachine
     {
         private IState CurrentState = null;
+        private bool ExcuteFixedUpdate = false;     // Wait for FixedUpdate
 
         // 상태(타입)별 전환 목록 저장
-        private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>(); 
+        private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
         // 현재 실행중인 상태의 전환 가능 목록
-        private List<Transition> _currentTransitions = new List<Transition>();                              
+        private List<Transition> _currentTransitions = new List<Transition>();
         // 어떤 상태에서도 전환 가능한 목록 저장
         private List<Transition> _anyTransitions = new List<Transition>();
 
@@ -25,16 +26,23 @@ namespace Characters.FSM
         // Transition Tick
         public void UpdateState()
         {
-            var transition = GetTransition();
-            if (transition != null)
-                SetState(transition.To);
-
-            CurrentState?.UpdateState();
+            // FixedUpdate()가 한 번 실행된 후 상태 체크
+            if (ExcuteFixedUpdate)
+            {
+                var transition = GetTransition();
+                if (transition != null)
+                {
+                    ExcuteFixedUpdate = false;
+                    SetState(transition.To);
+                }
+                CurrentState?.UpdateState();
+            }
         }
 
         public void FixedUpdateState()
         {
             CurrentState?.FixedUpdateState();
+            ExcuteFixedUpdate = true;
         }
 
         public void SetState(IState state)
