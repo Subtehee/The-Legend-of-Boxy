@@ -38,7 +38,6 @@ namespace Characters.FSM.Actions
                 IsJumped = true;
             }
             _owner.OnGravity(_gravity);
-            _owner.FixedUpdateIsGrounded();
 
         }
 

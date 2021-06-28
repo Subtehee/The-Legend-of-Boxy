@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-23
+// 수정 : 2021-06-28
 // 작성 : sujeong
 // ============================
 
@@ -12,13 +12,19 @@ namespace Characters.FSM.Actions
     {
 
         private readonly float _runSpeed = 0.0f;
+        private readonly float _sprintSpeed = 0.0f;
         private readonly float _gravity = 0.0f;
         private readonly float _rotSpeed = 0.0f;
 
-        public PlayerAction_Run(Character owner, States state, float runSpeed, float gravity, float rotSpeed)
+        private bool m_toggle = false;
+        private float m_moveSpeed = 0.0f;
+        private States m_currentState = 0.0f;
+
+        public PlayerAction_Run(Character owner, States state, float runSpeed, float sprintSpeed, float gravity, float rotSpeed)
             : base(owner, state) 
         {
             _runSpeed = runSpeed;
+            _sprintSpeed = sprintSpeed;
             _gravity = gravity;
             _rotSpeed = rotSpeed;
         }
@@ -26,18 +32,40 @@ namespace Characters.FSM.Actions
         public override void Enter()
         {
             base.Enter();
+            m_moveSpeed = _runSpeed;
         }
 
         public override void UpdateState()
         {
             _owner.UpdateMoveDirection();
+
+            // Change speed and animation to Run or Sprint
+            if (!m_toggle && InputManager.Instance.SprintInput)
+            {
+                m_moveSpeed = _sprintSpeed;
+                ChangeAnim(_state + 1);
+
+                m_toggle = true;
+            }
+            else if(m_toggle && !InputManager.Instance.SprintInput)
+            {
+                m_moveSpeed = _runSpeed;
+                ChangeAnim(_state);
+
+                m_toggle = false;
+            }
         }
 
         public override void FixedUpdateState()
         {
             _owner.OnRotate(_rotSpeed);
-            _owner.OnMove(_runSpeed);
+            _owner.OnMove(m_moveSpeed);
             _owner.OnGravity(_gravity);
+        }
+
+        private void ChangeAnim(States changeState)
+        {
+            _owner.ToAnimaition(changeState.GetHashCode());
         }
 
     }

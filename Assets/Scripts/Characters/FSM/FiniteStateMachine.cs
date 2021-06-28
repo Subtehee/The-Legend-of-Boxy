@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-25
+// 수정 : 2021-06-28
 // 작성 : sujeong
 // ============================
 
@@ -29,6 +29,7 @@ namespace Characters.FSM
             // FixedUpdate()가 한 번 실행된 후 상태 체크
             if (ExcuteFixedUpdate)
             {
+                
                 var transition = GetTransition();
                 if (transition != null)
                 {
@@ -86,8 +87,10 @@ namespace Characters.FSM
                     return transition;
 
             foreach (var transition in _currentTransitions)
+            {
                 if (transition.Condition())
                     return transition;
+            }
 
             return null;
         }

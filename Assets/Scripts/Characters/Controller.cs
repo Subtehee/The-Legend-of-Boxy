@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-24
+// 수정 : 2021-06-28
 // 작성 : sujeong
 // ============================
 
@@ -12,16 +12,19 @@ namespace Characters
 
         public Character Character = null;
         public LayerMask StaticLayer = 0;
+        public float MaxRayDistance = 3.0f;
 
         protected Quaternion charQuaternion = Quaternion.identity;
-        protected Rigidbody _rigidbody = null;
+        protected CapsuleCollider m_collider = null;
+
+        protected float m_angleOfGround = 0.0f;
 
         protected virtual void Awake()
         {
             if (StaticLayer == 0)
                 StaticLayer = LayerMask.NameToLayer("STATICMESH");
 
-            _rigidbody = GetComponent<Rigidbody>();
+            m_collider = GetComponent<CapsuleCollider>();
         }
 
         public virtual void UpdateControl() { }         // Update()
@@ -34,21 +37,18 @@ namespace Characters
             Gizmos.DrawRay(transform.position, -transform.up);
         }
 
-        // Control Character
-        public bool IsGrounded()
+        public float CheckGround()
         {
-            Debug.Log("Raycasting...");
 
             RaycastHit hit;
-            if(Physics.Raycast(transform.position, -transform.up, out hit, 0.1f, StaticLayer))
+            if (Physics.Raycast(m_collider.center, -transform.up, out hit, MaxRayDistance, StaticLayer))
             {
-                Debug.Log("RayCasting is Hit");
-                if (_rigidbody.velocity.y < float.Epsilon && hit.distance < 0.05f)
-                    return true;
-
-                Debug.Log(Character);
+                if (hit.distance < float.Epsilon)
+                    return 0.0f;
+                return hit.distance;
             }
-            return false;
+
+            return MaxRayDistance;
         }
 
     }

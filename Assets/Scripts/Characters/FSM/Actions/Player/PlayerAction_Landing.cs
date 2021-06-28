@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-24
+// 수정 : 2021-06-28
 // 작성 : sujeong
 // ============================
 
@@ -21,6 +21,9 @@ namespace Characters.FSM.Actions
         public override void Enter()
         {
             base.Enter();
+            Debug.Log("Enter the Lading State");
+
+            _owner.SetAnimtaionDelay(0.11f);
         }
 
         public override void FixedUpdateState()

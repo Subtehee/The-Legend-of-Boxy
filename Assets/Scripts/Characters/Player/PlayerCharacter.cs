@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-25
+// 수정 : 2021-06-28
 // 작성 : sujeong
 // ============================
 
@@ -31,24 +31,31 @@ namespace Characters.Player
 
             // Actions
             var idle = new PlayerAction_Idle(this, States.IDLE, Stat.GroundedGravity, Stat.Deceleration);
-            var run = new PlayerAction_Run(this, States.RUN, Stat.RunSpeed, Stat.GroundedGravity, Stat.TurnSpeed);
+            var run = new PlayerAction_Run(this, States.RUN, Stat.RunSpeed, Stat.SprintSpeed, Stat.GroundedGravity, Stat.TurnSpeed);
             var jump = new PlayerAction_Jump(this, States.JUMP, Stat.JumpForce, Stat.AirborneGravity);
             var landing = new PlayerAction_Landing(this, States.LANDING, Stat.AirborneGravity);
+            var falling = new PlayerAction_Fall(this, States.FALL, Stat.AirborneGravity);
 
-            // Add Transitions
             AddTransition(idle, run, CanMove);
             AddTransition(idle, jump, IsJumpInput);
             AddTransition(run, idle, CantMove);
             AddTransition(run, jump, IsJumpInput);
-            AddTransition(jump, landing, IsGrounded);
+            AddTransition(run, falling, Falling);
+            AddTransition(jump, landing, IsLanding);
+            AddTransition(jump, falling, Falling);
+            AddTransition(landing, idle, AnimtaionOver);
+            AddTransition(falling, landing, IsLanding);
 
             void AddTransition(IState from, IState to, Func<bool> condition) => FSM.AddTransition(from, to, condition);
 
             // Conditions
-            bool CanMove() => InputManager.Instance.HasMoveInput;
             bool CantMove() => !CanMove();
+            bool CanMove() => InputManager.Instance.HasMoveInput;
             bool IsJumpInput() => InputManager.Instance.JumpInput;
-            bool IsGrounded() => this.IsGrounded;
+            bool Falling() =>  m_distanceFromGround > 1.0f + 0.9f && m_rigidbody.velocity.y < float.Epsilon;
+            bool DownFalling() => m_distanceFromGround > 2.0f + 0.9f && m_rigidbody.velocity.y < float.Epsilon;
+            bool IsLanding() => m_distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
+            bool AnimtaionOver() => m_animtaionDelay < float.Epsilon;
 
             FSM.SetState(idle);     
         }
@@ -63,15 +70,21 @@ namespace Characters.Player
         {
             base.Update();
             Controller.UpdateControl();
+
+            // Animtaion Delay
+            if (m_animtaionDelay > 0.0f)
+                m_animtaionDelay -= Time.deltaTime;
+        }
+
+        protected override void LateUpdate()
+        {
+            base.LateUpdate();
         }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
             Controller.FixedUpdateControl();
-
-            Debug.Log(IsGrounded);
-            Debug.Log(m_rigidbody.velocity);
         }
 
         // Behaviors
@@ -94,20 +107,26 @@ namespace Characters.Player
 
         public override void OnMove(float moveSpeed)
         {
-            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Stat.Acceleration * Time.fixedDeltaTime);
+            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Stat.Acceleration * Time.deltaTime);
             Vector3 targetVelocity = moveDirection * targetSpeed;
             curSpeed = targetSpeed;
 
-            //m_rigidbody.velocity = new Vector3(targetVelocity.x, m_rigidbody.velocity.y, targetVelocity.z);
+            m_rigidbody.velocity = new Vector3(targetVelocity.x, m_rigidbody.velocity.y, targetVelocity.z);
 
-            m_rigidbody.AddForce(targetVelocity, ForceMode.VelocityChange);
-            m_rigidbody.velocity = Vector3.ClampMagnitude(m_rigidbody.velocity, moveSpeed);
+            //m_rigidbody.AddForce(targetVelocity, ForceMode.VelocityChange);
+            //m_rigidbody.velocity = Vector3.ClampMagnitude(m_rigidbody.velocity, moveSpeed);
         }
 
         public override void OnDecel()
         {
+            // velocity deceleration
             m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
-                new Vector3(0.0f, m_rigidbody.velocity.y, 0.0f), Stat.Deceleration * Time.fixedDeltaTime);
+                new Vector3(0.0f, m_rigidbody.velocity.y, 0.0f), Stat.Deceleration * Time.deltaTime);
+
+            // gravity deceleration
+            if (m_rigidbody.velocity.y > 0.0f)
+                m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
+                    new Vector3(m_rigidbody.velocity.x, 0.0f, m_rigidbody.velocity.z), Stat.Deceleration * Time.deltaTime);
         }
 
         public override void OnGravity(float gravity)

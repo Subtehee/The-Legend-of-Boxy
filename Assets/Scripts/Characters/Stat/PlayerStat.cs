@@ -16,8 +16,8 @@ namespace Characters.Stat
         public float CurMoveSpeed = 0.0f;       // 현재 속도
         public float RunSpeed = 8.0f;           // 달리기
         public float SprintSpeed = 15.0f;       // 전력질주
-        public float Acceleration = 40.0f;      // 가속
-        public float Deceleration = 40.0f;      // 감속
+        public float Acceleration = 30.0f;      // 가속
+        public float Deceleration = 20.0f;      // 감속
         public float TurnSpeed = 0.01f;         // 회전 속도
         public float JumpForce = 20.0f;         // 점프
 

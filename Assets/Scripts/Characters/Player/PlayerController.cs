@@ -30,8 +30,6 @@ namespace Characters.Player
 
         public override void FixedUpdateControl()
         {
-            base.FixedUpdateControl();
-
             PlayerCamera.SetCameraPosition(player.position);
             PlayerCamera.SetCameraRotation(GetTargetRotation());
         }

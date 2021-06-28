@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
   CurMoveSpeed: 0
-  RunSpeed: 3
-  SprintSpeed: 5
-  Acceleration: 40
-  Deceleration: 40
+  RunSpeed: 6
+  SprintSpeed: 10
+  Acceleration: 30
+  Deceleration: 20
   TurnSpeed: 0.01
-  JumpForce: 10
+  JumpForce: 8
   GroundedGravity: 5
   AirborneGravity: 20
   GlidingGravity: 10

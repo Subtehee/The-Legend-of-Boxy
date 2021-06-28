@@ -25,6 +25,7 @@ namespace Characters.FSM.Actions
             _owner.curSpeed = 0.0f;      // init Speed
 
             base.Enter();
+            //Debug.Log("Enter the Idle State");
         }
 
         public override void FixedUpdateState() 
