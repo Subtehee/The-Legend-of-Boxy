@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-28
+// 수정 : 2021-06-29
 // 작성 : sujeong
 // ============================
 
@@ -11,7 +11,7 @@ using Characters.FSM.Actions;
 
 namespace Characters.Player
 {
-    
+
     public class PlayerCharacter : Character
     {
 
@@ -36,8 +36,10 @@ namespace Characters.Player
             var landing = new PlayerAction_Landing(this, States.LANDING, Stat.AirborneGravity);
             var falling = new PlayerAction_Fall(this, States.FALL, Stat.AirborneGravity);
 
+
             AddTransition(idle, run, CanMove);
             AddTransition(idle, jump, IsJumpInput);
+            AddTransition(idle, falling, Falling);
             AddTransition(run, idle, CantMove);
             AddTransition(run, jump, IsJumpInput);
             AddTransition(run, falling, Falling);
@@ -52,10 +54,10 @@ namespace Characters.Player
             bool CantMove() => !CanMove();
             bool CanMove() => InputManager.Instance.HasMoveInput;
             bool IsJumpInput() => InputManager.Instance.JumpInput;
-            bool Falling() =>  m_distanceFromGround > 1.0f + 0.9f && m_rigidbody.velocity.y < float.Epsilon;
-            bool DownFalling() => m_distanceFromGround > 2.0f + 0.9f && m_rigidbody.velocity.y < float.Epsilon;
+            bool Falling() =>  m_distanceFromGround > 0.1f + Controller.RayOffset && !Controller.Hitted;
+            bool DownFalling() => m_distanceFromGround > 2.0f + Controller.RayOffset && !Controller.Hitted;
             bool IsLanding() => m_distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
-            bool AnimtaionOver() => m_animtaionDelay < float.Epsilon;
+            bool AnimtaionOver() => m_animtaionDelay < 0.0f;
 
             FSM.SetState(idle);     
         }
@@ -123,10 +125,9 @@ namespace Characters.Player
             m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
                 new Vector3(0.0f, m_rigidbody.velocity.y, 0.0f), Stat.Deceleration * Time.deltaTime);
 
-            // gravity deceleration
+            // Set Y velocity
             if (m_rigidbody.velocity.y > 0.0f)
-                m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
-                    new Vector3(m_rigidbody.velocity.x, 0.0f, m_rigidbody.velocity.z), Stat.Deceleration * Time.deltaTime);
+                m_rigidbody.velocity = new Vector3(m_rigidbody.velocity.x, 0.0f, m_rigidbody.velocity.z);
         }
 
         public override void OnGravity(float gravity)

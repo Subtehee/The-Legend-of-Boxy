@@ -67,7 +67,6 @@ namespace Characters.FSM.Actions
         {
             _owner.ToAnimaition(changeState.GetHashCode());
         }
-
     }
 
 }

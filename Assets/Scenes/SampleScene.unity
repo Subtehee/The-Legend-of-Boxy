@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 67492699}
   m_Layer: 6
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -287,9 +287,9 @@ GameObject:
   - component: {fileID: 464051739}
   - component: {fileID: 464051738}
   - component: {fileID: 464051737}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (4)
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -384,7 +384,7 @@ GameObject:
   - component: {fileID: 530600228}
   m_Layer: 6
   m_Name: Cube (3)
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -686,7 +686,7 @@ GameObject:
   - component: {fileID: 1035325777}
   m_Layer: 6
   m_Name: Cube (2)
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -781,7 +781,7 @@ GameObject:
   - component: {fileID: 1061244441}
   m_Layer: 6
   m_Name: Quad
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -877,7 +877,7 @@ GameObject:
   - component: {fileID: 1243441562}
   m_Layer: 6
   m_Name: Floor
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1040,6 +1040,7 @@ MonoBehaviour:
   Controller: {fileID: 0}
   State: 1
   moveDirection: {x: 0, y: 0, z: 0}
+  m_rigidbody: {fileID: 0}
   curSpeed: 0
   Stat: {fileID: 11400000, guid: 91fbafa7a6c976c4b9c16ab323ac5abe, type: 2}
 --- !u!114 &1444586483
@@ -1058,6 +1059,9 @@ MonoBehaviour:
   StaticLayer:
     serializedVersion: 2
     m_Bits: 64
+  Hitted: 0
+  MaxRayDistance: 3
+  RayOffset: 0.1
   PlayerCamera: {fileID: 169540103}
   CameraSensitivity: 5
 --- !u!95 &1444586484
@@ -1231,7 +1235,7 @@ GameObject:
   - component: {fileID: 2062057181}
   m_Layer: 6
   m_Name: Cube (1)
-  m_TagString: Untagged
+  m_TagString: STATICMESH
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -25,8 +25,6 @@ namespace Characters.FSM.Actions
         {
             base.Enter();
 
-            Debug.Log("Enter the Jump State");
-
             IsJumped = false;
         }
 

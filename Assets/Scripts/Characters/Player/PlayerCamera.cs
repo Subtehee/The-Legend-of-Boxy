@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-23
+// 수정 : 2021-06-29
 // 작성 : sujeong
 // ============================
 
@@ -70,8 +70,8 @@ namespace Characters.Player
         public void SetCameraRotation(Vector2 targetRotation)
         {
             // 목표의 오일러각
-            float yawAngle = -targetRotation.x + transform.eulerAngles.y;
-            float pitchAngle = targetRotation.y + Pivot.localEulerAngles.x;
+            float yawAngle = targetRotation.x + transform.eulerAngles.y;
+            float pitchAngle = -targetRotation.y + Pivot.localEulerAngles.x;
             
             //pitchAngle = Mathf.Clamp(pitchAngle, MinPitchAngle, MaxPitchAngle);  
 

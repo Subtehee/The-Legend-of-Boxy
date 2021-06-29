@@ -1,18 +1,23 @@
 // ============================
-// 수정 : 2021-06-28
+// 수정 : 2021-06-29
 // 작성 : sujeong
 // ============================
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Characters.FSM
 {
+
     public class FiniteStateMachine
     {
         private IState CurrentState = null;
-        private bool ExcuteFixedUpdate = false;     // Wait for FixedUpdate
+        private IState PreState = null;
+
+        private bool RunnableFixedUpdate = true;    // 애니메이션 전환 딜레이에 맞춰 움직임을 주기 위함
+        private bool ExcuteFixedUpdate = true;      // 캐릭터가 움직인 후 상태 체크하기 위함
 
         // 상태(타입)별 전환 목록 저장
         private Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
@@ -26,15 +31,16 @@ namespace Characters.FSM
         // Transition Tick
         public void UpdateState()
         {
-            // FixedUpdate()가 한 번 실행된 후 상태 체크
+            // 상태전환 후, FixedUpdate()가 한 번 실행되면 상태 체크 시작
             if (ExcuteFixedUpdate)
             {
-                
                 var transition = GetTransition();
                 if (transition != null)
                 {
-                    ExcuteFixedUpdate = false;
                     SetState(transition.To);
+
+                    RunnableFixedUpdate = true;
+                    ExcuteFixedUpdate = false;
                 }
                 CurrentState?.UpdateState();
             }
@@ -42,14 +48,25 @@ namespace Characters.FSM
 
         public void FixedUpdateState()
         {
-            CurrentState?.FixedUpdateState();
-            ExcuteFixedUpdate = true;
+            if (RunnableFixedUpdate)
+            {
+                CurrentState?.FixedUpdateState();
+                if (!ExcuteFixedUpdate)
+                    ExcuteFixedUpdate = true;
+            }
+            else
+                PreState?.FixedUpdateState();
         }
 
         public void SetState(IState state)
         {
             if (state == CurrentState)
                 return;
+
+            PreState = CurrentState;
+
+            // keep running FixedUpdate
+            RunnableFixedUpdate = false;
 
             CurrentState?.Exit();
             CurrentState = state;

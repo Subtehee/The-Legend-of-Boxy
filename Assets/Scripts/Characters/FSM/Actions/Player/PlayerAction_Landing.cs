@@ -21,7 +21,6 @@ namespace Characters.FSM.Actions
         public override void Enter()
         {
             base.Enter();
-            Debug.Log("Enter the Lading State");
 
             _owner.SetAnimtaionDelay(0.11f);
         }

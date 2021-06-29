@@ -20,6 +20,13 @@ namespace Characters.FSM.Actions
 
         public override void Enter()
         {
+            // deduplicate animation
+            if (_owner.State == States.JUMP)
+            {
+                _owner.State = _state;
+                return;
+            }
+
             base.Enter();
         }
 
@@ -27,7 +34,5 @@ namespace Characters.FSM.Actions
         {
             _owner.OnGravity(_gravity);
         }
-
     }
-
 }
