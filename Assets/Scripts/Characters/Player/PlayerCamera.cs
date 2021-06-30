@@ -10,15 +10,15 @@ namespace Characters.Player
     public class PlayerCamera : MonoBehaviour
     {
         // for move player
-        public Transform Pivot = null;      
-        public Transform Socket = null;     
+        public Transform Pivot = null;
+        public Transform Socket = null;
 
         [Header("Camera Setting")]
         public float MaxLengthFromTarget = 3.0f;
         public float MixLengthFromTarget = 1.0f;
         public float CollisionRadius = 0.2f;
         public float TargetOffset = 1.6f;
-        public float MinPitchAngle = -45.0f;
+        public float MinPitchAngle = 45.0f;
         public float MaxPitchAngle = 75.0f;
         public float PositionDamp = 5.0f;
         public float RotationDamp = 1.0f;
@@ -42,7 +42,7 @@ namespace Characters.Player
         public void SetCameraPosition(Vector3 targetPosition)
         {
             // Set rig position
-            transform.position = Vector3.Lerp(transform.position, targetPosition + (Vector3.up * TargetOffset), 
+            transform.position = Vector3.Lerp(transform.position, targetPosition + (Vector3.up * TargetOffset),
                                                 PositionDamp * Time.fixedDeltaTime);
             //transform.position = Vector3.SmoothDamp(transform.position, targetPosition + (Vector3.up * TargetOffset),
             //    ref rigVelocity, PositionDamp * Time.deltaTime);
@@ -72,8 +72,15 @@ namespace Characters.Player
             // 목표의 오일러각
             float yawAngle = targetRotation.x + transform.eulerAngles.y;
             float pitchAngle = -targetRotation.y + Pivot.localEulerAngles.x;
-            
-            //pitchAngle = Mathf.Clamp(pitchAngle, MinPitchAngle, MaxPitchAngle);  
+
+            if (pitchAngle < 0.0f)
+                pitchAngle = 360.0f + pitchAngle;
+
+            // 각도 제한주기
+            if (pitchAngle > 180.0f)
+                pitchAngle = Mathf.Clamp(pitchAngle, 360.0f - MinPitchAngle, 360.0f);
+            else
+                pitchAngle = Mathf.Clamp(pitchAngle, 0.0f, MaxPitchAngle);
 
             yawAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, yawAngle,
                 ref yVelocity, RotationDamp * Time.fixedDeltaTime);

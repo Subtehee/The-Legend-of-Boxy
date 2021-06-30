@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-28
+// 수정 : 2021-06-30
 // 작성 : sujeong
 // ============================
 
@@ -14,7 +14,11 @@ namespace Characters
         public Character Character = null;
         public LayerMask StaticLayer = 0;
 
+        [HideInInspector] public bool Movable = false;
         [HideInInspector] public bool Hitted = false;
+
+        [Header("Movable Setting")]
+        public float MaxUphillAngle = 55.0f;
         public float MaxRayDistance = 5.0f;
         public float RayOffset = 0.1f;
 
@@ -28,6 +32,7 @@ namespace Characters
         }
 
         public virtual void UpdateControl() { }         // Update()
+        public virtual void LateUpdateControl() { }     // LateUpdate()
         public virtual void FixedUpdateControl() { }    // FixedUpdate()
         public virtual Quaternion GetMoveDirection() { return charQuaternion; }
 
@@ -42,9 +47,9 @@ namespace Characters
             RaycastHit hit;
             if (Physics.Raycast(transform.position + transform.up * RayOffset, -transform.up, out hit, MaxRayDistance, StaticLayer))
             {
-                if (hit.distance < float.Epsilon)
+                if (hit.distance <= RayOffset)
                     return 0.0f;
-                return hit.distance;
+                return hit.distance - RayOffset;
             }
             return MaxRayDistance;
         }
@@ -53,16 +58,32 @@ namespace Characters
         {
             if (collision.transform.CompareTag("STATICMESH"))
             {
+                Vector3 normalOfGround = collision.contacts[0].normal;
+                CheckGrounded(normalOfGround);
+
                 Hitted = true;
-                Debug.Log("Hitted with StaticMEsh");
             }
+        }
+
+        private void CheckGrounded(Vector3 normal)
+        {
+            // 지면을 기준으로 접지된 부분의 각도 구하기
+            float dot = Vector3.Dot(normal, transform.up);
+            float pointAngle = Mathf.Acos(dot) * Mathf.Rad2Deg;
+
+            if (Mathf.Abs(pointAngle) < MaxUphillAngle)
+                Movable = true;
+            else  
+                Movable = false;
         }
 
         protected void OnCollisionExit(Collision collision)
         {
             if (collision.transform.CompareTag("STATICMESH"))
+            {
                 Hitted = false;
-            Debug.Log("Exit fromm StaticMesh");
+                Movable = false;
+            }
         }
     }
 }

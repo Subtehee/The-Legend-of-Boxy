@@ -10,9 +10,10 @@ namespace Characters.Player
 {
     public class PlayerController : Controller
     {
-        public PlayerCamera PlayerCamera = null;
+        [HideInInspector] public bool Climbable = false;
 
-        [Header("User Setting")]
+        [Header("Camera Setting")]
+        public PlayerCamera PlayerCamera = null;
         [Range(1.0f, 10.0f)] public float CameraSensitivity = 5.0f;
 
         private Transform player = null;
@@ -26,6 +27,11 @@ namespace Characters.Player
         public override void UpdateControl()
         {
             InputManager.Instance.UpdateInputs();
+        }
+
+        public void LateUpdateControl()
+        {
+
         }
 
         public override void FixedUpdateControl()
@@ -46,11 +52,14 @@ namespace Characters.Player
             Vector2 rotation = Vector2.zero;
 
             if (InputManager.Instance.HasCameraInput)
-            {
-                rotation.x = InputManager.Instance.CameraInput.x * CameraSensitivity;   // yaw
-                rotation.y = InputManager.Instance.CameraInput.y * CameraSensitivity;   // pitch
-            }
+                rotation = InputManager.Instance.CameraInput * CameraSensitivity;
+            
             return rotation;
+        }
+
+        private void CheckClimbable()
+        {
+
         }
     }
 }

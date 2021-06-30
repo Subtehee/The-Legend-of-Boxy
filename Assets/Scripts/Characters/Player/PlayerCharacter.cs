@@ -54,8 +54,8 @@ namespace Characters.Player
             bool CantMove() => !CanMove();
             bool CanMove() => InputManager.Instance.HasMoveInput;
             bool IsJumpInput() => InputManager.Instance.JumpInput;
-            bool Falling() =>  m_distanceFromGround > 0.1f + Controller.RayOffset && !Controller.Hitted;
-            bool DownFalling() => m_distanceFromGround > 2.0f + Controller.RayOffset && !Controller.Hitted;
+            bool Falling() =>  m_distanceFromGround > 0.3f && !Controller.Hitted;
+            bool DownFalling() => m_distanceFromGround > 5.0f && !Controller.Hitted;
             bool IsLanding() => m_distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
             bool AnimtaionOver() => m_animtaionDelay < 0.0f;
 
@@ -80,7 +80,7 @@ namespace Characters.Player
 
         protected override void LateUpdate()
         {
-            base.LateUpdate();
+            base.LateUpdate();  // Raycasting IsGrounded
         }
 
         protected override void FixedUpdate()
@@ -112,6 +112,7 @@ namespace Characters.Player
             float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Stat.Acceleration * Time.deltaTime);
             Vector3 targetVelocity = moveDirection * targetSpeed;
             curSpeed = targetSpeed;
+
 
             m_rigidbody.velocity = new Vector3(targetVelocity.x, m_rigidbody.velocity.y, targetVelocity.z);
 
