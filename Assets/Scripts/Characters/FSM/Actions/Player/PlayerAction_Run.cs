@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-28
+// 수정 : 2021-07-01
 // 작성 : sujeong
 // ============================
 
@@ -15,18 +15,21 @@ namespace Characters.FSM.Actions
         private readonly float _sprintSpeed = 0.0f;
         private readonly float _gravity = 0.0f;
         private readonly float _rotSpeed = 0.0f;
+        private readonly float _accel = 0.0f;
 
         private bool m_toggle = false;
         private float m_moveSpeed = 0.0f;
         private States m_currentState = 0.0f;
 
-        public PlayerAction_Run(Character owner, States state, float runSpeed, float sprintSpeed, float gravity, float rotSpeed)
+        public PlayerAction_Run(Character owner, States state, float runSpeed, 
+                                float sprintSpeed, float gravity, float rotSpeed, float accel)
             : base(owner, state) 
         {
             _runSpeed = runSpeed;
             _sprintSpeed = sprintSpeed;
             _gravity = gravity;
             _rotSpeed = rotSpeed;
+            _accel = accel;
         }
 
         public override void Enter()
@@ -59,7 +62,7 @@ namespace Characters.FSM.Actions
         public override void FixedUpdateState()
         {
             _owner.OnRotate(_rotSpeed);
-            _owner.OnMove(m_moveSpeed);
+            _owner.OnMove(m_moveSpeed, _accel);
             _owner.OnGravity(_gravity);
         }
 

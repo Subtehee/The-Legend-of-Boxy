@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-06-29
+// 수정 : 2021-07-01
 // 작성 : sujeong
 // ============================
 
@@ -31,11 +31,10 @@ namespace Characters.Player
 
             // Actions
             var idle = new PlayerAction_Idle(this, States.IDLE, Stat.GroundedGravity, Stat.Deceleration);
-            var run = new PlayerAction_Run(this, States.RUN, Stat.RunSpeed, Stat.SprintSpeed, Stat.GroundedGravity, Stat.TurnSpeed);
+            var run = new PlayerAction_Run(this, States.RUN, Stat.RunSpeed, Stat.SprintSpeed, Stat.GroundedGravity, Stat.TurnSpeed, Stat.Acceleration);
             var jump = new PlayerAction_Jump(this, States.JUMP, Stat.JumpForce, Stat.AirborneGravity);
             var landing = new PlayerAction_Landing(this, States.LANDING, Stat.AirborneGravity);
             var falling = new PlayerAction_Fall(this, States.FALL, Stat.AirborneGravity);
-
 
             AddTransition(idle, run, CanMove);
             AddTransition(idle, jump, IsJumpInput);
@@ -105,19 +104,6 @@ namespace Characters.Player
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_smoothVelocity, rotSpeed);
 
             transform.rotation = Quaternion.Euler(0.0f, angle, 0.0f);
-        }
-
-        public override void OnMove(float moveSpeed)
-        {
-            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, Stat.Acceleration * Time.deltaTime);
-            Vector3 targetVelocity = moveDirection * targetSpeed;
-            curSpeed = targetSpeed;
-
-
-            m_rigidbody.velocity = new Vector3(targetVelocity.x, m_rigidbody.velocity.y, targetVelocity.z);
-
-            //m_rigidbody.AddForce(targetVelocity, ForceMode.VelocityChange);
-            //m_rigidbody.velocity = Vector3.ClampMagnitude(m_rigidbody.velocity, moveSpeed);
         }
 
         public override void OnDecel()
