@@ -19,7 +19,10 @@ MonoBehaviour:
   Deceleration: 50
   TurnSpeed: 0.01
   JumpForce: 8
-  GroundedGravity: 5
+  GroundedGravity: 20
   AirborneGravity: 20
   GlidingGravity: 10
   MaxFallGravity: 40
+  MaxStamina: 300
+  MaxHP: 500
+  MaxDamage: 300

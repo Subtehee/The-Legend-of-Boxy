@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-07-01
+// 수정 : 2021-07-02
 // 작성 : sujeong
 // ============================
 
@@ -51,7 +51,6 @@ namespace Characters
         protected float m_distanceFromGround = 0.0f;
         protected float m_animtaionDelay = 0.0f;
         protected float m_slopeRayOffset = 0.1f;
-        protected bool Climbable = false;
 
         protected virtual void Awake()
         {
@@ -67,7 +66,6 @@ namespace Characters
         protected virtual void Update()
         {
             FSM.UpdateState();
-            Debug.DrawRay(Controller.groundPos - moveDirection.normalized * m_slopeRayOffset, moveDirection, Color.blue);
         }
 
         protected virtual void LateUpdate()
@@ -79,7 +77,6 @@ namespace Characters
         {
             FSM.FixedUpdateState();
         }
-
 
         // override Behaviors //
         // 상태에 따라 달라지는 행동은 매개변수를 받음
@@ -97,41 +94,26 @@ namespace Characters
             // 이동 가능한 상태에서 평지가 아닐 경우(오르막길, 내리막길) 움직일 방향의 각도 조절하기 
             if (Controller.Movable && Mathf.Abs(Controller.pointAngle) > float.Epsilon)
             {
-
-                float angle = Controller.pointAngle;
-
-                RaycastHit hit;
-                if (Physics.Raycast(Controller.groundPos - _moveDirection.normalized * m_slopeRayOffset, 
-                                    _moveDirection, out hit, 1.0f, staticLayer))
-                {
-                    // 속도는 지면의 기울기와 반비례
-
-                    Debug.Log("Is Uphill");
-                }
-                else
-                {
-                    angle *= (-1.0f);
-                    Debug.Log("Is Downhill");
-                }
-
-                Vector3 targetAngle = Vector3.Cross(_moveDirection, Vector3.up);     // moveDirection의 right벡터 (pitch의 기준 축)
-                targetAngle *= angle;
-
-                // 움직일 방향의 pitch 조정
-                _moveDirection = Quaternion.Euler(targetAngle) * _moveDirection;
-
+                _moveDirection = GetDirectionSlope(_moveDirection);
                 Debug.DrawLine(transform.position + Vector3.up * 1.0f, transform.position + _moveDirection + Vector3.up * 1.0f, Color.red);
-
-
-                // 한 축으로 했을 때 준나 잘됨 ex) X축일 경우
-                //moveDirection = Quaternion.Euler(angle, 0.0f, 0.0f) * moveDirection;
-
             }
 
             Vector3 targetVelocity = _moveDirection * targetSpeed;
             curSpeed = targetSpeed;
 
             m_rigidbody.velocity = targetVelocity;
+        }
+
+        protected Vector3 GetDirectionSlope(Vector3 direction)
+        {
+            // 지면의 기울기에 따라 움직일 방향 조정
+            Vector3 prpDir = Vector3.Cross(Vector3.up, direction).normalized;
+            Vector3 planeDir = Vector3.ProjectOnPlane(Controller.normalOfGround, prpDir);   // 지면(surface)과 평행한 벡터
+            direction = Vector3.Cross(prpDir, planeDir);
+
+            //_moveDirection = (prpDir * moveDirection.magnitude) / Mathf.Sqrt(_moveDirection.x * _moveDirection.x + _moveDirection.z * _moveDirection.z);
+
+            return direction;
         }
 
         public void AddImpulseForce(Vector3 direction, float force)

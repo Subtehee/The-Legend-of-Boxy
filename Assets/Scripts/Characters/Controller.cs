@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-07-01
+// 수정 : 2021-07-02
 // 작성 : sujeong
 // ============================
 
@@ -14,13 +14,13 @@ namespace Characters
         public Character Character = null;
         public LayerMask StaticLayer = 0;
 
-        [HideInInspector] public Vector3 groundPos = Vector3.zero;  // 접지되는 오브젝트의 좌표
+        [HideInInspector] public Vector3 normalOfGround = Vector3.zero;  // 접지되는 평면의 노말 벡터
         [HideInInspector] public float pointAngle = 0.0f;           // 접지 지점의 각도
         [HideInInspector] public bool Movable = false;              // 이동 가능 여부
         [HideInInspector] public bool Hitted = false;               // 캡슐 콜라이더의 충돌여부
 
         [Header("Movable Setting")]
-        public float MaxUphillAngle = 55.0f;
+        public float MaxSlopeAngle = 55.0f;
         public float MaxRayDistance = 5.0f;
         public float RayOffset = 0.1f;
 
@@ -62,8 +62,7 @@ namespace Characters
             {
                 ContactPoint groundPoint = collision.contacts[0];
 
-                groundPos = groundPoint.point;                  // 접지되는 위치
-                Vector3 normalOfGround = groundPoint.normal;    // 접지되는 위치의 법선 벡터
+                normalOfGround = groundPoint.normal;    // 접지되는 위치의 법선 벡터
                 CheckMovable(normalOfGround);
 
                 // 땅이 평지일 경우
@@ -80,7 +79,7 @@ namespace Characters
             float dot = Vector3.Dot(normal, transform.up);
             pointAngle = Mathf.Acos(dot) * Mathf.Rad2Deg;
 
-            if (Mathf.Abs(pointAngle) < MaxUphillAngle)
+            if (Mathf.Abs(pointAngle) < MaxSlopeAngle)
                 Movable = true;
             else
                 Movable = false;
