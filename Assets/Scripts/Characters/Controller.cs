@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-07-02
+// 수정 : 2021-07-05
 // 작성 : sujeong
 // ============================
 
@@ -15,14 +15,14 @@ namespace Characters
         public LayerMask StaticLayer = 0;
 
         [HideInInspector] public Vector3 normalOfGround = Vector3.zero;  // 접지되는 평면의 노말 벡터
-        [HideInInspector] public float pointAngle = 0.0f;           // 접지 지점의 각도
-        [HideInInspector] public bool Movable = false;              // 이동 가능 여부
-        [HideInInspector] public bool Hitted = false;               // 캡슐 콜라이더의 충돌여부
+        [HideInInspector] public float surfaceAngle = 0.0f;     // 접지 지점의 각도
+        [HideInInspector] public bool Hitted = false;           // 캡슐 콜라이더의 충돌여부
+        /*[HideInInspector]*/ public bool Movable = false;             
 
         [Header("Movable Setting")]
-        public float MaxSlopeAngle = 55.0f;
+        public float SlopeLimit = 55.0f;
         public float MaxRayDistance = 5.0f;
-        public float RayOffset = 0.1f;
+        public float MoveRayOffset = 0.1f;
 
         protected Quaternion charQuaternion = Quaternion.identity;
         protected float m_angleOfGround = 0.0f;
@@ -33,56 +33,53 @@ namespace Characters
                 StaticLayer = LayerMask.NameToLayer("STATICMESH");
         }
 
-        public virtual void UpdateControl() { }         // Update()
-        public virtual void LateUpdateControl() { }     // LateUpdate()
-        public virtual void FixedUpdateControl() { }    // FixedUpdate()
+        public virtual void UpdateControl() { }         
+        
+        public virtual void LateUpdateControl() 
+        {
+            Character.distanceFromGround = GetDistanceFromGround();
+        }   
+        
+        public virtual void FixedUpdateControl() { }    
         public virtual Quaternion GetMoveDirection() { return charQuaternion; }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(transform.position + transform.up * RayOffset, -transform.up * MaxRayDistance);
-        }
-
-        public float GetDistanceFromGround()
+        protected float GetDistanceFromGround()
         {
             RaycastHit hit;
-            if (Physics.Raycast(transform.position + transform.up * RayOffset, -transform.up, out hit, MaxRayDistance, StaticLayer))
+            if (Physics.Raycast(transform.position + transform.up * MoveRayOffset, -transform.up, out hit, MaxRayDistance, StaticLayer))
             {
-                if (hit.distance <= RayOffset)
+                normalOfGround = hit.normal;
+                surfaceAngle = MeasureAngle(normalOfGround, Vector3.up);
+
+                // 움직일 수 있는 각도인지 체크
+                if (surfaceAngle < SlopeLimit)
+                    Movable = true;
+                else
+                    Movable = false;
+                
+                // 지면과의 거리 측정
+                if (hit.distance <= MoveRayOffset)
                     return 0.0f;
-                return hit.distance - RayOffset;
+                return hit.distance - MoveRayOffset;
             }
             return MaxRayDistance;
         }
 
-        protected void OnCollisionStay(Collision collision)
+        protected virtual void OnCollisionStay(Collision collision)
         {
             if (collision.transform.CompareTag("STATICMESH"))
             {
-                ContactPoint groundPoint = collision.contacts[0];
-
-                normalOfGround = groundPoint.normal;    // 접지되는 위치의 법선 벡터
-                CheckMovable(normalOfGround);
-
-                // 땅이 평지일 경우
-                if (normalOfGround == Vector3.up)
-                    pointAngle = 0.0f;
-
                 Hitted = true;
             }
         }
 
-        private void CheckMovable(Vector3 normal)
+        protected float MeasureAngle(Vector3 normal, Vector3 standNormal)
         {
-            // 지면을 기준으로 접지된 부분의 각도 구하기
-            float dot = Vector3.Dot(normal, transform.up);
-            pointAngle = Mathf.Acos(dot) * Mathf.Rad2Deg;
+            // 노멀 벡터와 지면의 각 구하기
+            float dot = Vector3.Dot(normal, standNormal);
+            float angle = Mathf.Acos(dot) * Mathf.Rad2Deg;
 
-            if (Mathf.Abs(pointAngle) < MaxSlopeAngle)
-                Movable = true;
-            else
-                Movable = false;
+            return angle;
         }
 
         protected void OnCollisionExit(Collision collision)
@@ -94,4 +91,3 @@ namespace Characters
         }
     }
 }
-

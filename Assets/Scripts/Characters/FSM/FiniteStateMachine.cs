@@ -88,12 +88,13 @@ namespace Characters.FSM
                 _transitions[from.GetType()] = transitions;
             }
 
-            // 특정 상태의 전환 가능 목록 추가
+            // 전환 가능 상태와 조건 추가
             transitions.Add(new Transition(to, predicate));
         }
 
         public void AddAnyTransition(IState state, Func<bool> predicate)
         {
+
             _anyTransitions.Add(new Transition(state, predicate));
         }
 

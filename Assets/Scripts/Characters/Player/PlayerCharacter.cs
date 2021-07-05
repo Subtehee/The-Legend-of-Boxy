@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-07-01
+// 수정 : 2021-07-05
 // 작성 : sujeong
 // ============================
 
@@ -53,9 +53,9 @@ namespace Characters.Player
             bool CantMove() => !CanMove();
             bool CanMove() => InputManager.Instance.HasMoveInput;
             bool IsJumpInput() => InputManager.Instance.JumpInput;
-            bool Falling() =>  m_distanceFromGround > 0.5f && !Controller.Hitted;
-            bool DownFalling() => m_distanceFromGround > 5.0f && !Controller.Hitted;
-            bool IsLanding() => m_distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
+            bool Falling() =>  distanceFromGround > 0.5f && !Controller.Hitted;
+            bool DownFalling() => distanceFromGround > 5.0f && !Controller.Hitted;
+            bool IsLanding() => distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
             bool AnimtaionOver() => m_animtaionDelay < 0.0f;
 
             FSM.SetState(idle);     
@@ -79,7 +79,7 @@ namespace Characters.Player
 
         protected override void LateUpdate()
         {
-            base.LateUpdate();  // Raycasting IsGrounded
+            base.LateUpdate();  
         }
 
         protected override void FixedUpdate()

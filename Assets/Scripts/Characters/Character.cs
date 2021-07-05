@@ -1,5 +1,5 @@
 // ============================
-// 수정 : 2021-07-02
+// 수정 : 2021-07-05
 // 작성 : sujeong
 // ============================
 
@@ -43,14 +43,13 @@ namespace Characters
         [HideInInspector] public Vector3 moveDirection = Vector3.zero;
         [HideInInspector] public Rigidbody m_rigidbody = null;
         [HideInInspector] public float curSpeed = 0.0f;
+        [HideInInspector] public float distanceFromGround = 0.0f;
 
         protected Animator m_animator = null;
         protected FiniteStateMachine FSM = null;
 
         protected float m_smoothVelocity = 0.0f;        // Restore SmoothRotate Velocity 
-        protected float m_distanceFromGround = 0.0f;
         protected float m_animtaionDelay = 0.0f;
-        protected float m_slopeRayOffset = 0.1f;
 
         protected virtual void Awake()
         {
@@ -70,7 +69,8 @@ namespace Characters
 
         protected virtual void LateUpdate()
         {
-            m_distanceFromGround = Controller.GetDistanceFromGround();
+            // 레이캐스팅 w
+            Controller.LateUpdateControl();
         }
 
         protected virtual void FixedUpdate()
@@ -92,10 +92,9 @@ namespace Characters
             Vector3 _moveDirection = moveDirection.normalized;
 
             // 이동 가능한 상태에서 평지가 아닐 경우(오르막길, 내리막길) 움직일 방향의 각도 조절하기 
-            if (Controller.Movable && Mathf.Abs(Controller.pointAngle) > float.Epsilon)
+            if (Controller.Movable && Mathf.Abs(Controller.surfaceAngle) > float.Epsilon)
             {
                 _moveDirection = GetDirectionSlope(_moveDirection);
-                Debug.DrawLine(transform.position + Vector3.up * 1.0f, transform.position + _moveDirection + Vector3.up * 1.0f, Color.red);
             }
 
             Vector3 targetVelocity = _moveDirection * targetSpeed;
