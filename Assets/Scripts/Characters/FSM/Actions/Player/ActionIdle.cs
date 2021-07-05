@@ -8,12 +8,12 @@ using Characters.Player;
 
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Idle : ActionBase
+    public class ActionIdle : ActionBase
     {
         private readonly float _gravity = 0.0f;
         private readonly float _decel = 0.0f;
 
-        public PlayerAction_Idle(Character owner, States state, float gravity, float decel)
+        public ActionIdle(Character owner, States state, float gravity, float decel)
             : base(owner, state) 
         {
             _gravity = gravity;

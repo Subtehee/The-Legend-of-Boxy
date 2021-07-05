@@ -8,7 +8,7 @@ using Characters.Player;
 
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Run : ActionBase
+    public class ActionRun : ActionBase
     {
 
         private readonly float _runSpeed = 0.0f;
@@ -19,9 +19,10 @@ namespace Characters.FSM.Actions
 
         private bool m_toggle = false;
         private float m_moveSpeed = 0.0f;
+        private float m_curSpeed = 0.0f;
         private States m_currentState = 0.0f;
 
-        public PlayerAction_Run(Character owner, States state, float runSpeed, 
+        public ActionRun(Character owner, States state, float runSpeed, 
                                 float sprintSpeed, float gravity, float rotSpeed, float accel)
             : base(owner, state) 
         {
@@ -36,6 +37,7 @@ namespace Characters.FSM.Actions
         {
             base.Enter();
             m_moveSpeed = _runSpeed;
+            m_curSpeed = 0.0f;
         }
 
         public override void UpdateState()
@@ -64,6 +66,7 @@ namespace Characters.FSM.Actions
             _owner.OnRotate(_rotSpeed);
             _owner.OnMove(m_moveSpeed, _accel);
             _owner.OnGravity(_gravity);
+
         }
 
         private void ChangeAnim(States changeState)

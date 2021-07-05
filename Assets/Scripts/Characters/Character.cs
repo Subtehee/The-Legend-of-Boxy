@@ -22,12 +22,15 @@ namespace Characters
         LANDING,        // 5
         FALL,           // 6
         DOWNFALL,       // 7
-        CLIMB,          // 8
-        GLIDE,          // 9
-        AUTOATTACK,     // 10
-        STRONGATTACK,   // 11
-        SKILLATTACK,    // 12
-        DIE             // 13
+        CLIMBUP,        // 8
+        CLIMBDROP,      // 9
+        CLIMBMOVE,      // 10
+        CLIMBTOP,       // 11
+        GLIDE,          
+        AUTOATTACK,     
+        STRONGATTACK,   
+        SKILLATTACK,    
+        DIE             
     }
 
     [RequireComponent(typeof(Rigidbody))]
@@ -88,13 +91,14 @@ namespace Characters
         // Common Behaviors //
         public void OnMove(float moveSpeed, float accel)
         {
+
             float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, accel * Time.deltaTime);
             Vector3 _moveDirection = moveDirection.normalized;
 
             // 이동 가능한 상태에서 평지가 아닐 경우(오르막길, 내리막길) 움직일 방향의 각도 조절하기 
             if (Controller.Movable && Mathf.Abs(Controller.surfaceAngle) > float.Epsilon)
             {
-                _moveDirection = GetDirectionSlope(_moveDirection);
+                _moveDirection = GetDirectionSlope(_moveDirection, Controller.normalOfGround);
             }
 
             Vector3 targetVelocity = _moveDirection * targetSpeed;
@@ -103,11 +107,11 @@ namespace Characters
             m_rigidbody.velocity = targetVelocity;
         }
 
-        protected Vector3 GetDirectionSlope(Vector3 direction)
+        protected Vector3 GetDirectionSlope(Vector3 direction, Vector3 stanNormal)
         {
             // 지면의 기울기에 따라 움직일 방향 조정
             Vector3 prpDir = Vector3.Cross(Vector3.up, direction).normalized;
-            Vector3 planeDir = Vector3.ProjectOnPlane(Controller.normalOfGround, prpDir);   // 지면(surface)과 평행한 벡터
+            Vector3 planeDir = Vector3.ProjectOnPlane(stanNormal, prpDir);   // 지면(surface)과 평행한 벡터
             direction = Vector3.Cross(prpDir, planeDir);
 
             //_moveDirection = (prpDir * moveDirection.magnitude) / Mathf.Sqrt(_moveDirection.x * _moveDirection.x + _moveDirection.z * _moveDirection.z);

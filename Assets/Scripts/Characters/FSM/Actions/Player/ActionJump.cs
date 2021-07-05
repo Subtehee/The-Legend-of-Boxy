@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Jump : ActionBase
+    public class ActionJump : ActionBase
     {
         private readonly float _jumpForce;
         private readonly float _gravity;
 
         private bool IsJumped = false;
 
-        public PlayerAction_Jump(Character owner, States state, float jumpForce, float gravity)
+        public ActionJump(Character owner, States state, float jumpForce, float gravity)
             : base(owner, state)
         {
             _jumpForce = jumpForce;

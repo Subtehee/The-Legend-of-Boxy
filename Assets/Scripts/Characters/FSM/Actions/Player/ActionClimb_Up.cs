@@ -3,18 +3,18 @@
 // ¿€º∫ : sujeong
 // ============================
 
+using UnityEngine;
+
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Climb : ActionBase
+    public class ActionClimb_Up : ActionBase
     {
+        private readonly float _jumpForce = 0.0f;
 
-        private readonly float _climbSpeed = 0.0f;
-        private readonly float _hangForce = 0.0f;
-
-        public PlayerAction_Climb(Character owner, States state)
+        public ActionClimb_Up(Character owner, States state, float jumpForce)
             : base(owner, state)
         {
-
+            _jumpForce = jumpForce;
         }
 
         public override void Enter()
@@ -36,9 +36,7 @@ namespace Characters.FSM.Actions
         {
 
         }
-
     }
 
 }
-
 

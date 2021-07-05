@@ -8,12 +8,12 @@ using Characters.Player;
 
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Dash : ActionBase
+    public class ActionDash : ActionBase
     {
 
         private readonly float _accel = 0.0f;
 
-        public PlayerAction_Dash(Character owner, States state, float accel)
+        public ActionDash(Character owner, States state, float accel)
             : base(owner, state) 
         {
             _accel = accel;

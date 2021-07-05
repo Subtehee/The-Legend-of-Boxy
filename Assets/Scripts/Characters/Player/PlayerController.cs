@@ -11,13 +11,15 @@ namespace Characters.Player
     public class PlayerController : Controller
     {
         public float StepOffset = 0.3f;
-        public float ClimbableOffset = 0.8f;
+        public float ClimbableOffset = 0.6f;
         public float MinClimbAngle = 50.0f;
         public float MaxClimbAngle = 120.0f;
         public float ObserveWallAngle = 45.0f;
+        /*[HideInInspector]*/
+        public bool Climbable = false;
+        /*[HideInInspector]*/
+        public bool ReachTheTop = false;
         [HideInInspector] public bool Climbing = false;
-        [HideInInspector] public bool Climbable = false;
-        [HideInInspector] public bool ReachTheTop = false;
 
         [Header("Camera Setting")]
         public PlayerCamera PlayerCamera = null;
@@ -79,31 +81,27 @@ namespace Characters.Player
 
             Vector3 _moveDirection = Character.moveDirection.normalized;
 
-            // 등반 가능한지 체크
             RaycastHit hitFromBottom;
-            if (Physics.Raycast(transform.position + Vector3.up * ClimbableOffset, _moveDirection, out hitFromBottom, 1.0f, StaticLayer))
+            if (Physics.Raycast(transform.position + Vector3.up * StepOffset, _moveDirection, out hitFromBottom, MaxRayDistance, StaticLayer))
             {
-                if (WallHitted)
+                // 등반 가능한지 체크
+                if (WallHitted && !Climbable)
+                {
+                    float angle = MeasureAngle(hitFromBottom.normal, -_moveDirection);
+                    if (angle < ObserveWallAngle)
+                        Climbable = true;
+
+                }
+                // 등반 중일 때
+                else if (Climbable)
                 {
 
-                    // 등반 가능한지 체크
-                    if (!Climbable)
-                    {
-                        float angle = MeasureAngle(hitFromBottom.normal, -_moveDirection);
-                        if (angle < ObserveWallAngle)
-                            Climbable = true;
-                    }
-                    // 등반중일 때는 이동 방향 계산
-                    else
-                    {
-
-                    }
                 }
             }
 
             // 정상인지 체크
             RaycastHit hitFromTop;
-            if (Physics.Raycast(transform.position + Vector3.up * Height, _moveDirection, out hitFromTop, 1.0f, StaticLayer))
+            if (Physics.Raycast(transform.position + Vector3.up * Height, _moveDirection, out hitFromTop, MaxRayDistance, StaticLayer))
             {
                 ReachTheTop = false;
                 return;
@@ -143,8 +141,8 @@ namespace Characters.Player
             Gizmos.color = Color.blue;
             try
             {
-                Gizmos.DrawRay(transform.position + Vector3.up * ClimbableOffset, Character.moveDirection);
-                Gizmos.DrawRay(transform.position + Vector3.up * Height, Character.moveDirection);
+                Gizmos.DrawRay(transform.position + Vector3.up * StepOffset, Character.moveDirection * MaxRayDistance);
+                Gizmos.DrawRay(transform.position + Vector3.up * Height, Character.moveDirection * MaxRayDistance);
             }
             catch (Exception e)
             {

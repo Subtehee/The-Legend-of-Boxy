@@ -7,32 +7,31 @@ using UnityEngine;
 
 namespace Characters.FSM.Actions
 {
-    public class PlayerAction_Fall : ActionBase
+    public class ActionLanding : ActionBase
     {
 
         private readonly float _gravity = 0.0f;
 
-        public PlayerAction_Fall(Character owner, States state, float gravity)
-            :base(owner, state)
+        public ActionLanding(Character owner, States state, float gravity)
+            : base(owner, state) 
         {
             _gravity = gravity;
         }
 
         public override void Enter()
         {
-            // deduplicate animation
-            if (_owner.State == States.JUMP)
-            {
-                _owner.State = _state;
-                return;
-            }
-
             base.Enter();
+
+            _owner.SetAnimtaionDelay(0.11f);
         }
 
         public override void FixedUpdateState()
         {
+            _owner.OnDecel();
             _owner.OnGravity(_gravity);
         }
     }
+
 }
+
+

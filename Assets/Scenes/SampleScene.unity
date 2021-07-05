@@ -243,7 +243,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 169540101}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.41, y: 6.4, z: -5.64}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 686967875}
@@ -365,7 +365,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 173100240}
   m_LocalRotation: {x: 0.17101003, y: 0.8137978, z: -0.2961981, w: 0.46984628}
-  m_LocalPosition: {x: 16.08, y: 6.97, z: -5.29}
+  m_LocalPosition: {x: 11.86, y: 1.16, z: -2.85}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1481,7 +1481,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1444586478}
-  m_Material: {fileID: 13400000, guid: 91f380ec9819a3c4185dca6ee9dc7fbd, type: 2}
+  m_Material: {fileID: 13400000, guid: 0ae067f898cb96f449013c18d4d850dd, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.2
@@ -1553,9 +1553,10 @@ MonoBehaviour:
   ClimbableOffset: 1
   MinClimbAngle: 50
   MaxClimbAngle: 120
-  DirectionAngleLimit: 45
+  ObserveWallAngle: 45
   Climbable: 0
-  ClimbToTop: 0
+  ReachTheTop: 0
+  Climbing: 0
   PlayerCamera: {fileID: 169540103}
   CameraSensitivity: 5
 --- !u!95 &1444586484
