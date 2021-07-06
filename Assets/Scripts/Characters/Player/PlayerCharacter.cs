@@ -92,41 +92,9 @@ namespace Characters.Player
             Controller.FixedUpdateControl();
         }
 
-        // Behaviors
         public override void UpdateMoveDirection()
         {
-            _moveInput = InputManager.Instance.MoveInput;
-            _direction = Controller.GetMoveDirection();
-
-            moveDirection = ((_direction * Vector3.forward * _moveInput.y)
-                            + (_direction * Vector3.right * _moveInput.x)).normalized;
-        }
-
-        public override void OnRotate(float rotSpeed)
-        {
-            float targetAngle = Mathf.Atan2(_moveInput.x, _moveInput.y) * Mathf.Rad2Deg + _direction.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_smoothVelocity, rotSpeed);
-
-            transform.rotation = Quaternion.Euler(0.0f, angle, 0.0f);
-        }
-
-        public override void OnDecel()
-        {
-            // velocity deceleration
-            m_rigidbody.velocity = Vector3.MoveTowards(m_rigidbody.velocity,
-                new Vector3(0.0f, m_rigidbody.velocity.y, 0.0f), Stat.Deceleration * Time.deltaTime);
-
-            // Set Y velocity
-            if (m_rigidbody.velocity.y > 0.0f)
-                m_rigidbody.velocity = new Vector3(m_rigidbody.velocity.x, 0.0f, m_rigidbody.velocity.z);
-        }
-
-        public override void OnGravity(float gravity)
-        {
-            m_rigidbody.AddForce(-transform.up * gravity);
-
-            if (m_rigidbody.velocity.y < -gravity)
-                m_rigidbody.velocity = new Vector3(m_rigidbody.velocity.x, -gravity, m_rigidbody.velocity.z);
+            moveDirection = Controller.GetMoveDirection();
         }
     }
 }

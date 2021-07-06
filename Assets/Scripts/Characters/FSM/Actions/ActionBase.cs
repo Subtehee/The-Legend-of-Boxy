@@ -8,23 +8,14 @@ using Characters.Player;
 
 namespace Characters.FSM.Actions
 {
-    public class ActionBase : IState
+    public class ActionBase : MonoBehaviour, IState
     {
-        protected Character _owner = null;
-        protected States _state;
+        protected Behaviors Behaviors = null;
 
-        //public ActionBase(Character owner, States state)
-        //{
-        //    _owner = owner;
-        //    _state = state;
-        //}
-
-        //public virtual void Enter() 
-        //{
-        //    //Debug.Log("Enter the State : " + _state.ToString());
-        //    _owner.State = _state;
-        //    _owner.ToAnimaition(_state.GetHashCode());
-        //}
+        protected void Awake()
+        {
+            Behaviors ??= FindObjectOfType<Behaviors>();
+        }
 
         public virtual void Enter() { }
         public virtual void UpdateState() { }

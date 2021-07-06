@@ -10,11 +10,11 @@ namespace Characters.Player
 {
     public class PlayerController : Controller
     {
-        public float StepOffset = 0.3f;
-        public float ClimbableOffset = 0.6f;
-        public float MinClimbAngle = 50.0f;
-        public float MaxClimbAngle = 120.0f;
-        public float ObserveWallAngle = 45.0f;
+        //public float StepOffset = 0.3f;
+        //public float ClimbableOffset = 0.6f;
+        //public float MinClimbAngle = 50.0f;
+        //public float MaxClimbAngle = 120.0f;
+        //public float ObserveWallAngle = 45.0f;
         /*[HideInInspector]*/
         public bool Climbable = false;
         /*[HideInInspector]*/
@@ -50,7 +50,6 @@ namespace Characters.Player
         public override void LateUpdateControl()
         {
             base.LateUpdateControl();
-            CheckClimbable();
         }
 
         public override void FixedUpdateControl()
@@ -59,11 +58,18 @@ namespace Characters.Player
             PlayerCamera.SetCameraRotation(GetTargetRotation());
         }
 
-        public override Quaternion GetMoveDirection()
+        public override Vector3 GetMoveDirection()
         {
-            charQuaternion = PlayerCamera.transform.rotation;
+            Quaternion curRotation = PlayerCamera.transform.rotation;
+            Vector2 moveInput = InputManager.Instance.MoveInput;     
 
-            return base.GetMoveDirection();
+            Vector3 yawVector = ((curRotation * Vector3.forward * moveInput.y)
+                            + (curRotation * Vector3.right * moveInput.x)).normalized;
+
+            // 지면의 경사에 따라 pitch축 조절
+            moveDirection = CalculateDirectionSlope(yawVector, normalOfGround);
+
+            return moveDirection;
         }
 
         private Vector2 GetTargetRotation()
@@ -76,79 +82,64 @@ namespace Characters.Player
             return rotation;
         }
 
-        private void CheckClimbable()
-        {
+        //private void CheckClimbable()
+        //{
+        //    //Vector3 _moveDirection = Character.moveDirection.normalized;
 
-            Vector3 _moveDirection = Character.moveDirection.normalized;
+        //    RaycastHit hitFromBottom;
+        //    if (Physics.Raycast(transform.position + Vector3.up * StepOffset, _moveDirection, out hitFromBottom, MaxRayDistance, StaticLayer))
+        //    {
+        //        // 등반 가능한지 체크
+        //        if (WallHitted && !Climbable)
+        //        {
+        //            float angle = MeasureAngle(hitFromBottom.normal, -_moveDirection);
+        //            if (angle < ObserveWallAngle)
+        //                Climbable = true;
 
-            RaycastHit hitFromBottom;
-            if (Physics.Raycast(transform.position + Vector3.up * StepOffset, _moveDirection, out hitFromBottom, MaxRayDistance, StaticLayer))
-            {
-                // 등반 가능한지 체크
-                if (WallHitted && !Climbable)
-                {
-                    float angle = MeasureAngle(hitFromBottom.normal, -_moveDirection);
-                    if (angle < ObserveWallAngle)
-                        Climbable = true;
+        //        }
+        //        // 등반 중일 때
+        //        else if (Climbable)
+        //        {
 
-                }
-                // 등반 중일 때
-                else if (Climbable)
-                {
+        //        }
+        //    }
 
-                }
-            }
+        //    // 정상인지 체크
+        //    RaycastHit hitFromTop;
+        //    if (Physics.Raycast(transform.position + Vector3.up * Height, _moveDirection, out hitFromTop, MaxRayDistance, StaticLayer))
+        //    {
+        //        ReachTheTop = false;
+        //        return;
+        //    }
+        //    else if (Climbable)
+        //    {
+        //        ReachTheTop = true;
+        //    }
+        //    else
+        //    {
+        //        Climbable = false;
+        //        ReachTheTop = false;
+        //    }
+        //}
 
-            // 정상인지 체크
-            RaycastHit hitFromTop;
-            if (Physics.Raycast(transform.position + Vector3.up * Height, _moveDirection, out hitFromTop, MaxRayDistance, StaticLayer))
-            {
-                ReachTheTop = false;
-                return;
-            }
-            else if (Climbable)
-            {
-                ReachTheTop = true;
-            }
-            else
-            {
-                Climbable = false;
-                ReachTheTop = false;
-            }
-        }
+        //protected override void OnCollisionStay(Collision collision)
+        //{
 
-        protected override void OnCollisionStay(Collision collision)
-        {
+        //    if (collision.transform.CompareTag("STATICMESH"))
+        //    {
+        //        Hitted = true;
 
-            if (collision.transform.CompareTag("STATICMESH"))
-            {
-                Hitted = true;
-
-                // 등반 상태가 아닐 시 등반 가능 각도인지 측정
-                if (!Climbable)
-                {
-                    Vector3 hitNormal = collision.contacts[0].normal;
-                    float wallAngle = MeasureAngle(hitNormal, Vector3.up);
-                    if (wallAngle > MinClimbAngle && wallAngle < MaxClimbAngle)
-                        WallHitted = true;
-                    else WallHitted = false;
-                }
-            }
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.blue;
-            try
-            {
-                Gizmos.DrawRay(transform.position + Vector3.up * StepOffset, Character.moveDirection * MaxRayDistance);
-                Gizmos.DrawRay(transform.position + Vector3.up * Height, Character.moveDirection * MaxRayDistance);
-            }
-            catch (Exception e)
-            {
-                // null Exception //
-            }
-        }
+        //        // 등반 상태가 아닐 시 등반 가능 각도인지 측정
+        //        if (!Climbable)
+        //        {
+        //            Vector3 hitNormal = collision.contacts[0].normal;
+        //            float wallAngle = MeasureAngle(hitNormal, Vector3.up);
+        //            if (wallAngle > MinClimbAngle && wallAngle < MaxClimbAngle)
+        //                WallHitted = true;
+        //            else WallHitted = false;
+        //        }
+        //    }
+        //}
     }
 }
 

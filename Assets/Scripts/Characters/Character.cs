@@ -38,10 +38,15 @@ namespace Characters
     public class Character : MonoBehaviour
     {
         public Controller Controller = null;
-        public LayerMask staticLayer = 0;
+        public LayerMask StaticLayer = 0;
 
         [Header("Movement State")]
         public States State = States.IDLE;
+
+        [Header("Movable Setting")]
+        public float SlopeLimit = 55.0f;
+        public float MaxRayDistance = 5.0f;
+        public float MoveRayOffset = 0.1f;
 
         [HideInInspector] public Vector3 moveDirection = Vector3.zero;
         [HideInInspector] public Rigidbody m_rigidbody = null;
@@ -51,17 +56,18 @@ namespace Characters
         protected Animator m_animator = null;
         protected FiniteStateMachine FSM = null;
 
+        protected bool Movable = false;
         protected float m_smoothVelocity = 0.0f;        // Restore SmoothRotate Velocity 
         protected float m_animtaionDelay = 0.0f;
 
         protected virtual void Awake()
         {
             FSM = new FiniteStateMachine();
+
+            if (StaticLayer == 0)
+                StaticLayer = LayerMask.NameToLayer("STATICMESH");
+
             Controller ??= GetComponent<Controller>();
-
-            if (staticLayer == 0)
-                staticLayer = LayerMask.NameToLayer("STATICMESH");
-
             Controller.Character = this;
         }
 
@@ -70,10 +76,10 @@ namespace Characters
             FSM.UpdateState();
         }
 
-        protected virtual void LateUpdate()
+        protected virtual void LateUpdate() 
         {
-            // 레이캐스팅 w
-            Controller.LateUpdateControl();
+            // 지면에서 떨어진 거리 측정
+            distanceFromGround = Controller.GetDistanceFromGround();
         }
 
         protected virtual void FixedUpdate()
@@ -81,48 +87,7 @@ namespace Characters
             FSM.FixedUpdateState();
         }
 
-        // override Behaviors //
-        // 상태에 따라 달라지는 행동은 매개변수를 받음
         public virtual void UpdateMoveDirection() { }
-        public virtual void OnRotate(float rotSpeed) { }
-        public virtual void OnGravity(float gravity) { }
-        public virtual void OnDecel() { }
-
-        // Common Behaviors //
-        public void OnMove(float moveSpeed, float accel)
-        {
-
-            float targetSpeed = Mathf.Lerp(curSpeed, moveSpeed, accel * Time.deltaTime);
-            Vector3 _moveDirection = moveDirection.normalized;
-
-            // 이동 가능한 상태에서 평지가 아닐 경우(오르막길, 내리막길) 움직일 방향의 각도 조절하기 
-            if (Controller.Movable && Mathf.Abs(Controller.surfaceAngle) > float.Epsilon)
-            {
-                _moveDirection = GetDirectionSlope(_moveDirection, Controller.normalOfGround);
-            }
-
-            Vector3 targetVelocity = _moveDirection * targetSpeed;
-            curSpeed = targetSpeed;
-
-            m_rigidbody.velocity = targetVelocity;
-        }
-
-        protected Vector3 GetDirectionSlope(Vector3 direction, Vector3 stanNormal)
-        {
-            // 지면의 기울기에 따라 움직일 방향 조정
-            Vector3 prpDir = Vector3.Cross(Vector3.up, direction).normalized;
-            Vector3 planeDir = Vector3.ProjectOnPlane(stanNormal, prpDir);   // 지면(surface)과 평행한 벡터
-            direction = Vector3.Cross(prpDir, planeDir);
-
-            //_moveDirection = (prpDir * moveDirection.magnitude) / Mathf.Sqrt(_moveDirection.x * _moveDirection.x + _moveDirection.z * _moveDirection.z);
-
-            return direction;
-        }
-
-        public void AddImpulseForce(Vector3 direction, float force)
-        {
-            m_rigidbody.AddForce(direction * force, ForceMode.Impulse);
-        }
 
         // Animation Funcs //
         public void ToAnimaition(int value)

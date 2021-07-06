@@ -10,24 +10,21 @@ namespace Characters.FSM.Actions
 {
     public class ActionRun : ActionBase
     {
-
+        private readonly Character _owner = null;
+        private readonly Transform _transform = null;
         private readonly float _runSpeed = 0.0f;
-        private readonly float _sprintSpeed = 0.0f;
         private readonly float _gravity = 0.0f;
         private readonly float _rotSpeed = 0.0f;
         private readonly float _accel = 0.0f;
 
-        private bool m_toggle = false;
-        private float m_moveSpeed = 0.0f;
         private float m_curSpeed = 0.0f;
-        private States m_currentState = 0.0f;
+        private States m_currentState = States.RUN;
 
-        public ActionRun(Character owner, States state, float runSpeed, 
-                                float sprintSpeed, float gravity, float rotSpeed, float accel)
-            : base(owner, state) 
+        public ActionRun(Character owner, float runSpeed, float gravity, float rotSpeed, float accel)
         {
+            _owner = owner;
+            _transform = owner.transform;
             _runSpeed = runSpeed;
-            _sprintSpeed = sprintSpeed;
             _gravity = gravity;
             _rotSpeed = rotSpeed;
             _accel = accel;
@@ -35,36 +32,25 @@ namespace Characters.FSM.Actions
 
         public override void Enter()
         {
-            base.Enter();
-            m_moveSpeed = _runSpeed;
-            m_curSpeed = 0.0f;
+            _owner.State = m_currentState;
+            _owner.ToAnimaition(m_currentState.GetHashCode());
+
+            m_curSpeed = _owner.curSpeed;
         }
 
         public override void UpdateState()
         {
             _owner.UpdateMoveDirection();
 
-            // Change speed and animation to Run or Sprint
-            if (!m_toggle && InputManager.Instance.SprintInput)
-            {
-                m_moveSpeed = _sprintSpeed;
-                ChangeAnim(_state + 1);
-
-                m_toggle = true;
-            }
-            else if(m_toggle && !InputManager.Instance.SprintInput)
-            {
-                m_moveSpeed = _runSpeed;
-                ChangeAnim(_state);
-
-                m_toggle = false;
-            }
         }
 
         public override void FixedUpdateState()
         {
             _owner.OnRotate(_rotSpeed);
-            _owner.OnMove(m_moveSpeed, _accel);
+
+            float targetSpeed = Mathf.Lerp(m_curSpeed, _runSpeed, _accel * Time.deltaTime);
+            Vector3 _moveDirection = _owner.moveDirection.normalized;
+
             _owner.OnGravity(_gravity);
 
         }
@@ -72,6 +58,11 @@ namespace Characters.FSM.Actions
         private void ChangeAnim(States changeState)
         {
             _owner.ToAnimaition(changeState.GetHashCode());
+        }
+
+        public override void Exit()
+        {
+            _owner.curSpeed = m_curSpeed;
         }
     }
 

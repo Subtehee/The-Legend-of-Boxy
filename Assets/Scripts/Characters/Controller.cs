@@ -10,21 +10,21 @@ namespace Characters
     [RequireComponent(typeof(CapsuleCollider))]
     public class Controller : MonoBehaviour
     {
-
         public Character Character = null;
         public LayerMask StaticLayer = 0;
 
-        [HideInInspector] public Vector3 normalOfGround = Vector3.zero;  // 접지되는 평면의 노말 벡터
+        [HideInInspector] public Vector2 moveDirection = Vector2.zero;
+        [HideInInspector] public Vector3 normalOfGround = Vector3.zero;  // 접지되는 지면의 노말 벡터
         [HideInInspector] public float surfaceAngle = 0.0f;     // 접지 지점의 각도
         [HideInInspector] public bool Hitted = false;           // 캡슐 콜라이더의 충돌여부
-        /*[HideInInspector]*/ public bool Movable = false;             
+        /*[HideInInspector]*/
+        public bool Movable = false;
 
         [Header("Movable Setting")]
-        public float SlopeLimit = 55.0f;
-        public float MaxRayDistance = 5.0f;
-        public float MoveRayOffset = 0.1f;
+        [SerializeField] protected float SlopeLimit = 55.0f;
+        [SerializeField] protected float MaxRayDistance = 5.0f;
+        [SerializeField] protected float RayToGroundOffset = 0.1f;
 
-        protected Quaternion charQuaternion = Quaternion.identity;
         protected float m_angleOfGround = 0.0f;
 
         protected virtual void Awake()
@@ -33,20 +33,36 @@ namespace Characters
                 StaticLayer = LayerMask.NameToLayer("STATICMESH");
         }
 
-        public virtual void UpdateControl() { }         
-        
-        public virtual void LateUpdateControl() 
-        {
-            Character.distanceFromGround = GetDistanceFromGround();
-        }   
-        
-        public virtual void FixedUpdateControl() { }    
-        public virtual Quaternion GetMoveDirection() { return charQuaternion; }
+        public virtual void UpdateControl() { }
 
-        protected float GetDistanceFromGround()
+        public virtual void LateUpdateControl()
+        {
+            //Character.distanceFromGround = GetDistanceFromGround();
+        }
+
+        public virtual void FixedUpdateControl() { }
+        public virtual Vector3 GetMoveDirection() { return moveDirection; }
+
+        protected virtual void OnCollisionStay(Collision collision)
+        {
+            if (collision.transform.CompareTag("STATICMESH"))
+            {
+                Hitted = true;
+            }
+        }
+
+        protected void OnCollisionExit(Collision collision)
+        {
+            if (collision.transform.CompareTag("STATICMESH"))
+            {
+                Hitted = false;
+            }
+        }
+
+        public float GetDistanceFromGround()
         {
             RaycastHit hit;
-            if (Physics.Raycast(transform.position + transform.up * MoveRayOffset, -transform.up, out hit, MaxRayDistance, StaticLayer))
+            if (Physics.Raycast(transform.position + transform.up * RayToGroundOffset, -transform.up, out hit, MaxRayDistance, StaticLayer))
             {
                 normalOfGround = hit.normal;
                 surfaceAngle = MeasureAngle(normalOfGround, Vector3.up);
@@ -56,21 +72,13 @@ namespace Characters
                     Movable = true;
                 else
                     Movable = false;
-                
+
                 // 지면과의 거리 측정
-                if (hit.distance <= MoveRayOffset)
+                if (hit.distance <= RayToGroundOffset)
                     return 0.0f;
-                return hit.distance - MoveRayOffset;
+                return hit.distance - RayToGroundOffset;
             }
             return MaxRayDistance;
-        }
-
-        protected virtual void OnCollisionStay(Collision collision)
-        {
-            if (collision.transform.CompareTag("STATICMESH"))
-            {
-                Hitted = true;
-            }
         }
 
         protected float MeasureAngle(Vector3 normal, Vector3 standNormal)
@@ -82,12 +90,16 @@ namespace Characters
             return angle;
         }
 
-        protected void OnCollisionExit(Collision collision)
+        protected Vector3 CalculateDirectionSlope(Vector3 yawVector, Vector3 normal)
         {
-            if (collision.transform.CompareTag("STATICMESH"))
-            {
-                Hitted = false;
-            }
+            // 지면의 기울기에 따라 움직일 방향 조정
+            Vector3 prpDir = Vector3.Cross(Vector3.up, yawVector).normalized;
+            Vector3 planeDir = Vector3.ProjectOnPlane(normal, prpDir);   // 지면(surface)과 평행한 벡터
+            Vector3 targetDirection = Vector3.Cross(prpDir, planeDir);
+
+            //_moveDirection = (prpDir * moveDirection.magnitude) / Mathf.Sqrt(_moveDirection.x * _moveDirection.x + _moveDirection.z * _moveDirection.z);
+
+            return targetDirection;
         }
     }
 }
