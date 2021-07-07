@@ -26,8 +26,8 @@ namespace Characters.Player
         {
             base.Awake();
 
-            m_rigidbody = GetComponent<Rigidbody>();
-            m_animator = GetComponent<Animator>();
+            rigid = GetComponent<Rigidbody>();
+            animator = GetComponent<Animator>();
             Controller ??= GetComponent<PlayerController>();
             Stat ??= FindObjectOfType<PlayerStat>();
 
@@ -59,7 +59,7 @@ namespace Characters.Player
             bool IsJumpInput() => InputManager.Instance.JumpInput;
             bool Falling() => distanceFromGround > 0.5f && !Controller.Hitted;
             bool DownFalling() => distanceFromGround > 5.0f && !Controller.Hitted;
-            bool IsLanding() => distanceFromGround < 0.3f && m_rigidbody.velocity.y < float.Epsilon;
+            bool IsLanding() => distanceFromGround < 0.3f && rigid.velocity.y < float.Epsilon;
             bool AnimtaionOver() => m_animtaionDelay < 0.0f;
 
             FSM.SetState(idle);
@@ -67,13 +67,15 @@ namespace Characters.Player
 
         private void Start()
         {
-            m_rigidbody.freezeRotation = true;
-            m_rigidbody.useGravity = false;
+            rigid.freezeRotation = true;
+            rigid.useGravity = false;
         }
 
         protected override void Update()
         {
             base.Update();
+
+            // set inputs
             Controller.UpdateControl();
 
             // Animtaion Delay
@@ -90,11 +92,6 @@ namespace Characters.Player
         {
             base.FixedUpdate();
             Controller.FixedUpdateControl();
-        }
-
-        public override void UpdateMoveDirection()
-        {
-            moveDirection = Controller.GetMoveDirection();
         }
     }
 }

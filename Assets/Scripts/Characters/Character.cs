@@ -48,17 +48,18 @@ namespace Characters
         public float MaxRayDistance = 5.0f;
         public float MoveRayOffset = 0.1f;
 
-        [HideInInspector] public Vector3 moveDirection = Vector3.zero;
-        [HideInInspector] public Rigidbody m_rigidbody = null;
-        [HideInInspector] public float curSpeed = 0.0f;
-        [HideInInspector] public float distanceFromGround = 0.0f;
+        [HideInInspector] public Vector3 moveDirection = Vector3.zero;          // 움직일 방향
+        [HideInInspector] public Vector2 targetDirection = Vector2.zero;        // 회전할 방향
+        [HideInInspector] public Quaternion curRotation = Quaternion.identity;  // 현재의 회전 방향
+        [HideInInspector] public Rigidbody rigid = null;
 
-        protected Animator m_animator = null;
+        protected Animator animator = null;
         protected FiniteStateMachine FSM = null;
 
         protected bool Movable = false;
         protected float m_smoothVelocity = 0.0f;        // Restore SmoothRotate Velocity 
         protected float m_animtaionDelay = 0.0f;
+        protected float distanceFromGround = 0.0f;
 
         protected virtual void Awake()
         {
@@ -87,16 +88,19 @@ namespace Characters
             FSM.FixedUpdateState();
         }
 
-        public virtual void UpdateMoveDirection() { }
+        public void UpdateMoveDirection() 
+        {
+            moveDirection = Controller.GetMoveDirection();
+        }
 
         // Animation Funcs //
         public void ToAnimaition(int value)
         {
             // 중복 리턴
-            if (m_animator.GetInteger("State") == value)
+            if (animator.GetInteger("State") == value)
                 return;
 
-            m_animator.SetInteger("State", value);
+            animator.SetInteger("State", value);
         }
 
         public void SetAnimtaionDelay(float delayTime)

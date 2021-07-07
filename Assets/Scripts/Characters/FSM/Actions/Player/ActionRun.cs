@@ -11,19 +11,18 @@ namespace Characters.FSM.Actions
     public class ActionRun : ActionBase
     {
         private readonly Character _owner = null;
-        private readonly Transform _transform = null;
+        private readonly Rigidbody _rigidbody = null;
         private readonly float _runSpeed = 0.0f;
         private readonly float _gravity = 0.0f;
         private readonly float _rotSpeed = 0.0f;
         private readonly float _accel = 0.0f;
 
-        private float m_curSpeed = 0.0f;
-        private States m_currentState = States.RUN;
+        private States state = States.RUN;
 
-        public ActionRun(Character owner, float runSpeed, float gravity, float rotSpeed, float accel)
+        public ActionRun(Character owner, Rigidbody rigidbody, float runSpeed, float gravity, float rotSpeed, float accel)
         {
             _owner = owner;
-            _transform = owner.transform;
+            _rigidbody = rigidbody;
             _runSpeed = runSpeed;
             _gravity = gravity;
             _rotSpeed = rotSpeed;
@@ -32,24 +31,20 @@ namespace Characters.FSM.Actions
 
         public override void Enter()
         {
-            _owner.State = m_currentState;
-            _owner.ToAnimaition(m_currentState.GetHashCode());
+            _owner.State = state;
+            _owner.ToAnimaition(state.GetHashCode());
 
-            m_curSpeed = _owner.curSpeed;
         }
 
         public override void UpdateState()
         {
             _owner.UpdateMoveDirection();
-
         }
 
         public override void FixedUpdateState()
         {
-            _owner.OnRotate(_rotSpeed);
-
-            float targetSpeed = Mathf.Lerp(m_curSpeed, _runSpeed, _accel * Time.deltaTime);
-            Vector3 _moveDirection = _owner.moveDirection.normalized;
+            Behaviors.OnRotate(_owner.transform, )
+            Behaviors.OnMove(_owner, _owner.rigid, _runSpeed, _accel, _owner.moveDirection);
 
             _owner.OnGravity(_gravity);
 

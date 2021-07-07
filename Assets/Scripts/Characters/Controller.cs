@@ -13,8 +13,8 @@ namespace Characters
         public Character Character = null;
         public LayerMask StaticLayer = 0;
 
-        [HideInInspector] public Vector2 moveDirection = Vector2.zero;
-        [HideInInspector] public Vector3 normalOfGround = Vector3.zero;  // 접지되는 지면의 노말 벡터
+        [HideInInspector] public Vector2 moveDirection = Vector2.zero;      // 움직일 방향의 벡터
+        [HideInInspector] public Vector3 normalOfGround = Vector3.zero;     // 접지되는 지면의 노말 벡터
         [HideInInspector] public float surfaceAngle = 0.0f;     // 접지 지점의 각도
         [HideInInspector] public bool Hitted = false;           // 캡슐 콜라이더의 충돌여부
         /*[HideInInspector]*/
@@ -34,12 +34,7 @@ namespace Characters
         }
 
         public virtual void UpdateControl() { }
-
-        public virtual void LateUpdateControl()
-        {
-            //Character.distanceFromGround = GetDistanceFromGround();
-        }
-
+        public virtual void LateUpdateControl() { }
         public virtual void FixedUpdateControl() { }
         public virtual Vector3 GetMoveDirection() { return moveDirection; }
 

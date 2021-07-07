@@ -12,10 +12,10 @@ namespace Characters.FSM.Actions
     {
         protected float m_smoothVelocity = 0.0f;
 
-        public void OnRotate(Transform ownerTrans, Vector2 targetDirection, Quaternion curDirection, float rotSpeed) 
+        public void OnRotate(Transform ownerTrans, Vector2 targetDirection, Quaternion curRotation, float rotSpeed) 
         {
 
-            float targetAngle = Mathf.Atan2(targetDirection.x, targetDirection.y) * Mathf.Rad2Deg + curDirection.eulerAngles.y;
+            float targetAngle = Mathf.Atan2(targetDirection.x, targetDirection.y) * Mathf.Rad2Deg + curRotation.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(ownerTrans.eulerAngles.y, targetAngle, ref m_smoothVelocity, rotSpeed);
 
             ownerTrans.rotation = Quaternion.Euler(0.0f, angle, 0.0f);
